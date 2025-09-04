@@ -25,4 +25,8 @@ final class UserDefaultsHelper {
     func checkLogin() -> Bool {
         return token != nil
     }
+    
+    func clearToken() {
+        defaults.removeObject(forKey: "token")
+    }
 }

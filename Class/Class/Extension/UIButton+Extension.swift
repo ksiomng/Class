@@ -16,7 +16,7 @@ extension UIButton {
         button.layer.cornerRadius = 8
         button.setTitle(title, for: .normal)
         button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .smallFont
+        button.titleLabel?.font = .smallBoldFont
         return button
     }
 }
