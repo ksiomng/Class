@@ -14,8 +14,12 @@ final class NetworkManager {
     
     private init() { }
     
-    func callRequest<T: Decodable>(api: NetworkRouter, handler: @escaping ((Result<T, Error>) -> Void)) {
-        AF.request(api.endPoint, method: api.method, parameters: api.parameters, headers: api.headers)
+    func callRequest<T: Decodable>(api: NetworkRouter, type: T.Type, handler: @escaping ((Result<T, Error>) -> Void)) {
+        AF.request(api.endPoint,
+                   method: api.method,
+                   parameters: api.parameters,
+                   encoding: api.encoding,
+                   headers: api.headers)
             .responseDecodable(of: T.self) { response in
             switch response.result {
             case .success(let value):

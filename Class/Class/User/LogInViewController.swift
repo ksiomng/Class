@@ -74,18 +74,34 @@ class LogInViewController: UIViewController {
                 let password = value.1
                 
                 owner.loginButton.backgroundColor = .lightGrayC
+                owner.loginButton.isEnabled = false
+                
                 if email.isEmpty || password.isEmpty {
                     owner.statusLabel.text = "이메일과 비밀번호를 입력해주세요"
                     
                 } else if !(email.contains("@") && email.contains(".com")) {
                     owner.statusLabel.text = "이메일에 @와 .com 을 포함해주세요"
                     
-                } else if (password.count >= 2) && (password.count < 10) {
+                } else if (password.count < 2) || (password.count >= 10) {
                     owner.statusLabel.text = "비밀번호는 2글자 이상 10글자 미만으로 설정해주세요"
                     
                 } else {
                     owner.statusLabel.text = nil
                     owner.loginButton.backgroundColor = .lightOrangeC
+                    owner.loginButton.isEnabled = true
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        loginButton.rx.tap
+            .bind(with: self) { owner, _ in
+                NetworkManager.shared.callRequest(api: .login(email: owner.emailTextField.text!, password: owner.passwordTextField.text!), type: Login.self) { result in
+                    switch result {
+                    case .success(let success):
+                        UserDefaultsHelper.shared.token = success.accessToken
+                    case .failure(let failure):
+                        print(failure)
+                    }
                 }
             }
             .disposed(by: disposeBag)

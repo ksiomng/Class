@@ -17,7 +17,7 @@ enum NetworkRouter {
     
     var endPoint: URL {
         switch self {
-        case .login(let email, let password):
+        case .login(_, _):
             return URL(string: "\(baseURL)\(APIURL.loginURL)")!
         }
     }
@@ -32,13 +32,23 @@ enum NetworkRouter {
     
     var headers: HTTPHeaders {
         switch self {
-        case .login(let email, let password):
+        case .login(_ , _):
             return ["Content-Type": "application/json",
                     "SesacKey": "\(APIKey.key)"]
         }
     }
     
+    var encoding: ParameterEncoding {
+        switch self {
+        case .login:
+            return JSONEncoding.default
+        }
+    }
+    
     var method: HTTPMethod {
-        return .post
+        switch self {
+        case .login:
+            return .post
+        }
     }
 }
