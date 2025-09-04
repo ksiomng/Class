@@ -99,6 +99,7 @@ class LogInViewController: UIViewController {
                     switch result {
                     case .success(let success):
                         UserDefaultsHelper.shared.token = success.accessToken
+                        self.view.window?.rootViewController = RootViewControllerManager.getRootViewController()
                     case .failure(let failure):
                         print(failure)
                     }

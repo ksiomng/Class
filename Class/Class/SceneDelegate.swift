@@ -16,16 +16,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
         
-        if UserDefaultsHelper.shared.checkLogin() {
-            let vc = ViewController()
-            let nav = UINavigationController(rootViewController: vc)
-            window?.rootViewController = nav
-        } else {
-            let vc = LogInViewController()
-            let nav = UINavigationController(rootViewController: vc)
-            window?.rootViewController = nav
-        }
-        
+        let vc = RootViewControllerManager.getRootViewController()
+        window?.rootViewController = vc
         window?.makeKeyAndVisible()
     }
 
