@@ -25,7 +25,8 @@ class ProfileViewController: UIViewController {
         return button
     }()
     
-    let disposeBag = DisposeBag()
+    private let viewModel = ProfileViewModel()
+    private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,10 +34,12 @@ class ProfileViewController: UIViewController {
         bind()
     }
     
-    func bind() {
-        logoutButton.rx.tap
+    private func bind() {
+        let input = ProfileViewModel.Input(logoutButtonTap: logoutButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.logout
             .bind(with: self) { owner, _ in
-                UserDefaultsHelper.shared.clearToken()
                 self.view.window?.rootViewController = RootViewControllerManager.getRootViewController()
             }
             .disposed(by: disposeBag)
