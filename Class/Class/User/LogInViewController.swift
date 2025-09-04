@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class LogInViewController: UIViewController {
     
@@ -45,7 +47,7 @@ class LogInViewController: UIViewController {
         let button = UIButton.defaultButton(title: "로그인", color: .lightGrayC)
         return button
     }()
-
+    
     private let statusLabel = {
         let label = UILabel()
         label.text = "이메일 또는 비밀번호를 입력해주세요."
@@ -55,10 +57,38 @@ class LogInViewController: UIViewController {
         return label
     }()
     
+    private let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        bind()
+    }
+    
+    private func bind() {
+        Observable
+            .combineLatest(emailTextField.rx.text.orEmpty, passwordTextField.rx.text.orEmpty)
+            .bind(with: self) { owner, value in
+                let email = value.0
+                let password = value.1
+                
+                owner.loginButton.backgroundColor = .lightGrayC
+                if email.isEmpty || password.isEmpty {
+                    owner.statusLabel.text = "이메일과 비밀번호를 입력해주세요"
+                    
+                } else if !(email.contains("@") && email.contains(".com")) {
+                    owner.statusLabel.text = "이메일에 @와 .com 을 포함해주세요"
+                    
+                } else if (password.count >= 2) && (password.count < 10) {
+                    owner.statusLabel.text = "비밀번호는 2글자 이상 10글자 미만으로 설정해주세요"
+                    
+                } else {
+                    owner.statusLabel.text = nil
+                    owner.loginButton.backgroundColor = .lightOrangeC
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupUI() {
