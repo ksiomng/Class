@@ -11,14 +11,6 @@ import RxSwift
 import RxCocoa
 
 class ProfileViewController: UIViewController {
-
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "프로필"
-        label.textColor = .black
-        label.font = .largeBoldFont
-        return label
-    }()
     
     let logoutButton: UIButton = {
         let button = UIButton.defaultButton(title: "로그아웃", color: .lightOrangeC)
@@ -47,7 +39,7 @@ class ProfileViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: setLeftNavigationTitle(title: "프로필"))
         
         view.addSubview(logoutButton)
         logoutButton.snp.makeConstraints { make in
