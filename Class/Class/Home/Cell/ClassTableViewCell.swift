@@ -76,6 +76,18 @@ class ClassTableViewCell: UITableViewCell {
         setupUI()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        classImageView.image = nil
+        priceLabel.attributedText = nil
+        priceLabel.text = nil
+        salePriceLabel.text = nil
+        salePriceLabel.isHidden = true
+        salePersentLabel.text = nil
+        salePersentLabel.isHidden = true
+        likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+    }
+    
     private func setupUI() {
         contentView.addSubview(classImageView)
         contentView.addSubview(classTitleLabel)
@@ -95,11 +107,11 @@ class ClassTableViewCell: UITableViewCell {
         classTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(classImageView.snp.bottom).offset(8)
             make.leading.equalToSuperview().inset(16)
+            make.trailing.equalTo(categoryTag.snp.leading).offset(-4)
         }
         
         categoryTag.snp.makeConstraints { make in
             make.centerY.equalTo(classTitleLabel)
-            make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
             make.trailing.lessThanOrEqualToSuperview().inset(16).priority(.required)
         }
         
@@ -130,7 +142,7 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    func setupData(image: String, title: String, desc: String, price: Int?, salePrice: Int?, category: Int) {
+    func setupData(image: String, title: String, desc: String, price: Int?, salePrice: Int?, category: Int, like: Bool) {
         NetworkManager.shared.callImage(imagePath: image) { result in
             switch result {
             case .success(let success):
@@ -149,7 +161,7 @@ class ClassTableViewCell: UITableViewCell {
                     string: StringFormatter.formatWithComma(price) + "원",
                     attributes: [
                         .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                        .foregroundColor: UIColor.lightGrayC
+                        .foregroundColor: UIColor.lightGray
                     ]
                 )
                 priceLabel.attributedText = attributeString
@@ -159,18 +171,20 @@ class ClassTableViewCell: UITableViewCell {
                 salePriceLabel.text = StringFormatter.formatWithComma(salePrice) + "원"
                 salePersentLabel.text = calculate(price: price, sale: salePrice)
             } else {
-                priceLabel.attributedText = nil
                 priceLabel.text = StringFormatter.formatWithComma(price) + "원"
-                priceLabel.textColor = .black
                 salePriceLabel.isHidden = true
                 salePersentLabel.isHidden = true
             }
         } else {
-            priceLabel.attributedText = nil
             priceLabel.text = "무료"
-            priceLabel.textColor = .black
             salePriceLabel.isHidden = true
             salePersentLabel.isHidden = true
+        }
+        
+        if like {
+            likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        } else {
+            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
     }
     

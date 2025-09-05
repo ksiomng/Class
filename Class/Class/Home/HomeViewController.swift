@@ -12,9 +12,6 @@ import RxCocoa
 
 class HomeViewController: UIViewController {
     
-    var list = PublishSubject<[ClassInfo]>()
-    let disposeBag = DisposeBag()
-    
     private lazy var categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -54,6 +51,9 @@ class HomeViewController: UIViewController {
         return tableView
     }()
     
+    let disposeBag = DisposeBag()
+    private let viewModel = HomeViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -61,25 +61,17 @@ class HomeViewController: UIViewController {
     }
     
     private func bind() {
-        NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
-            switch result {
-            case .success(let success):
-                self.list.onNext(success.data)
-                print(success.data[0].image_url)
-            case .failure(let failure):
-                print(failure)
-            }
-        }
+        let output = viewModel.transform(input: HomeViewModel.Input())
         
-        list
+        output.list
             .bind(to: classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(image: element.image_url, title: element.title, desc: element.description, price: element.price, salePrice: element.sale_price, category: element.category)
+                cell.setupData(image: element.image_url, title: element.title, desc: element.description, price: element.price, salePrice: element.sale_price, category: element.category, like: element.is_liked)
             }
             .disposed(by: disposeBag)
         
-        list
+        output.list
             .bind(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
             }
