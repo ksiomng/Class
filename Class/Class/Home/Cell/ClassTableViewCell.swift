@@ -92,6 +92,7 @@ class ClassTableViewCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        disposeBag = DisposeBag()
         priceLabel.attributedText = nil
     }
     
@@ -149,7 +150,8 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    func setupData(row: ClassInfo) {
+    func setupData(row: ClassInfo, handler: @escaping () -> Void) {
+        
         let input = ClassTableViewCellModel.Input(imagePath: row.image_url)
         let output = viewModel.transform(input: input)
         
@@ -170,19 +172,12 @@ class ClassTableViewCell: UITableViewCell {
         } else {
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
-    }
-    
-    func bind(id: String, like: Bool, handler: @escaping () -> Void) {
+        
         likeButton.rx.tap
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: id, status: !like), type: Like.self) { result in
+                NetworkManager.shared.callRequest(api: .like(id: row.class_id, status: !row.is_liked), type: Like.self) { result in
                     switch result {
-                    case .success(let success):
-                        if success.like_status {
-                            owner.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-                        } else {
-                            owner.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-                        }
+                    case .success(_):
                         handler()
                     case .failure(let failure):
                         print(failure)

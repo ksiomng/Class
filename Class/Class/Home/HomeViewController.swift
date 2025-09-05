@@ -69,8 +69,7 @@ class HomeViewController: UIViewController {
             .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element)
-                cell.bind(id: element.class_id, like: element.is_liked) {
+                cell.setupData(row: element) {
                     reload.accept(())
                 }
             }
