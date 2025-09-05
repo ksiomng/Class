@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Kingfisher
+import RxSwift
 
 class ClassTableViewCell: UITableViewCell {
     
@@ -70,6 +70,9 @@ class ClassTableViewCell: UITableViewCell {
         label.contentInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
         return label
     }()
+    
+    let viewModel = ClassTableViewCellModel()
+    let disposeBag = DisposeBag()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -143,43 +146,20 @@ class ClassTableViewCell: UITableViewCell {
     }
     
     func setupData(image: String, title: String, desc: String, price: Int?, salePrice: Int?, category: Int, like: Bool) {
-        NetworkManager.shared.callImage(imagePath: image) { result in
-            switch result {
-            case .success(let success):
-                self.classImageView.image = success
-            case .failure(let failure):
-                print(failure)
+        let input = ClassTableViewCellModel.Input(imagePath: image)
+        let output = viewModel.transform(input: input)
+        
+        output.image
+            .drive(with: self) { owner, image in
+                owner.classImageView.image = image
             }
-        }
+            .disposed(by: disposeBag)
+        
         classTitleLabel.text = title
         classDescLabel.text = desc
+        
         categoryTag.text = Category.categories[category]
-        if let price = price {
-            priceLabel.text = StringFormatter.formatWithComma(price) + "원"
-            if let salePrice = salePrice {
-                let attributeString = NSAttributedString(
-                    string: StringFormatter.formatWithComma(price) + "원",
-                    attributes: [
-                        .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                        .foregroundColor: UIColor.lightGray
-                    ]
-                )
-                priceLabel.attributedText = attributeString
-                
-                salePriceLabel.isHidden = false
-                salePersentLabel.isHidden = false
-                salePriceLabel.text = StringFormatter.formatWithComma(salePrice) + "원"
-                salePersentLabel.text = calculate(price: price, sale: salePrice)
-            } else {
-                priceLabel.text = StringFormatter.formatWithComma(price) + "원"
-                salePriceLabel.isHidden = true
-                salePersentLabel.isHidden = true
-            }
-        } else {
-            priceLabel.text = "무료"
-            salePriceLabel.isHidden = true
-            salePersentLabel.isHidden = true
-        }
+        PriceLabel.priceCalculateSale(price: price, salePrice: salePrice, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
         
         if like {
             likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
@@ -188,15 +168,8 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    private func calculate(price: Int, sale: Int) -> String {
-        let discountRate = ((Float(price) - Float(sale)) / Float(price)) * 100
-        let roundedRate = Int(discountRate.rounded())
-        return "\(roundedRate)%"
-    }
-    
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

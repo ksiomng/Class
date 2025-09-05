@@ -15,4 +15,10 @@ final class StringFormatter {
         formatter.numberStyle = .decimal
         return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
     }
+    
+    static func calculate(price: Int, sale: Int) -> String {
+        let discountRate = ((Float(price) - Float(sale)) / Float(price)) * 100
+        let roundedRate = Int(discountRate.rounded())
+        return "\(roundedRate)%"
+    }
 }

@@ -64,7 +64,7 @@ class HomeViewController: UIViewController {
         let output = viewModel.transform(input: HomeViewModel.Input())
         
         output.list
-            .bind(to: classTableView.rx
+            .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(image: element.image_url, title: element.title, desc: element.description, price: element.price, salePrice: element.sale_price, category: element.category, like: element.is_liked)
@@ -72,7 +72,7 @@ class HomeViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.list
-            .bind(with: self) { owner, list in
+            .drive(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
             }
             .disposed(by: disposeBag)

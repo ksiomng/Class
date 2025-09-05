@@ -1,20 +1,22 @@
 //
-//  HomeViewModel.swift
+//  ClassTableViewCellModel.swift
 //  Class
 //
 //  Created by Song Kim on 9/6/25.
 //
 
-import Foundation
+import UIKit
 import RxSwift
 import RxCocoa
 
-final class HomeViewModel {
+final class ClassTableViewCellModel {
     
-    struct Input { }
+    struct Input {
+        let imagePath: String
+    }
     
     struct Output {
-        var list: Driver<[ClassInfo]>
+        var image: Driver<UIImage>
     }
     
     let disposeBag = DisposeBag()
@@ -22,16 +24,17 @@ final class HomeViewModel {
     init() { }
     
     func transform(input: Input) -> Output {
-        let list = BehaviorRelay<[ClassInfo]>(value: [])
+        let image = BehaviorRelay<UIImage>(value: UIImage())
         
-        NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
+        NetworkManager.shared.callImage(imagePath: input.imagePath) { result in
             switch result {
             case .success(let success):
-                list.accept(success.data)
+                image.accept(success)
             case .failure(let failure):
                 print(failure)
             }
         }
-        return Output(list: list.asDriver())
+        
+        return Output(image: image.asDriver())
     }
 }
