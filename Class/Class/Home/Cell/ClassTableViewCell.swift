@@ -172,11 +172,9 @@ class ClassTableViewCell: UITableViewCell {
         } else {
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
-        
-        bind(id: row.class_id)
     }
     
-    func bind(id: String) {
+    func bind(id: String, handler: @escaping (Bool) -> Void) {
         likeButton.rx.tap
             .bind(with: self) { owner, _ in
                 NetworkManager.shared.callRequest(api: .like(id: id, status: !self.likeStatus), type: Like.self) { [self] result in
@@ -188,6 +186,7 @@ class ClassTableViewCell: UITableViewCell {
                         } else {
                             owner.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
                         }
+                        handler(success.like_status)
                     case .failure(let failure):
                         print(failure)
                     }

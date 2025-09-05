@@ -61,13 +61,18 @@ class HomeViewController: UIViewController {
     }
     
     private func bind() {
-        let output = viewModel.transform(input: HomeViewModel.Input())
+        let reload = BehaviorRelay<Void>(value: ())
+        let input = HomeViewModel.Input(callData: reload)
+        let output = viewModel.transform(input: input)
         
         output.list
             .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
+                cell.bind(id: element.class_id) { _ in
+                    reload.accept(())
+                }
             }
             .disposed(by: disposeBag)
         

@@ -11,10 +11,12 @@ import RxCocoa
 
 final class HomeViewModel {
     
-    struct Input { }
+    struct Input {
+        let callData: BehaviorRelay<Void>
+    }
     
     struct Output {
-        var list: Driver<[ClassInfo]>
+        let list: Driver<[ClassInfo]>
     }
     
     let disposeBag = DisposeBag()
@@ -24,14 +26,18 @@ final class HomeViewModel {
     func transform(input: Input) -> Output {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         
-        NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
-            switch result {
-            case .success(let success):
-                list.accept(success.data)
-            case .failure(let failure):
-                print(failure)
+        input.callData
+            .bind {
+                NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
+                    switch result {
+                    case .success(let success):
+                        list.accept(success.data)
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
             }
-        }
+            .disposed(by: disposeBag)
         return Output(list: list.asDriver())
     }
 }
