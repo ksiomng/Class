@@ -58,6 +58,18 @@ class ClassTableViewCell: UITableViewCell {
         return button
     }()
     
+    private let categoryTag = {
+        let label = InsetLabel()
+        label.font = .systemFont(ofSize: 10)
+        label.textColor = .orangeC
+        label.clipsToBounds = true
+        label.layer.cornerRadius = 4
+        label.layer.borderWidth = 1
+        label.layer.borderColor = UIColor.orangeC.cgColor
+        label.contentInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
+        return label
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -71,6 +83,7 @@ class ClassTableViewCell: UITableViewCell {
         contentView.addSubview(salePriceLabel)
         contentView.addSubview(salePersentLabel)
         classImageView.addSubview(likeButton)
+        contentView.addSubview(categoryTag)
         
         classImageView.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.top).offset(12)
@@ -81,6 +94,11 @@ class ClassTableViewCell: UITableViewCell {
         classTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(classImageView.snp.bottom).offset(8)
             make.leading.equalToSuperview()
+        }
+        
+        categoryTag.snp.makeConstraints { make in
+            make.centerY.equalTo(classTitleLabel)
+            make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
         }
         
         classContentLabel.snp.makeConstraints { make in
@@ -110,11 +128,12 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    func bindData(image: String, title: String, content: String, price: String, salePrice: String?) {
+    func bindData(image: String, title: String, content: String, price: String, salePrice: String?, category: String) {
         classImageView.kf.setImage(with: URL(string: image)!)
         classTitleLabel.text = title
         classContentLabel.text = content
         priceLabel.text = price + "원"
+        categoryTag.text = category
         if let salePrice = salePrice {
             let attributeString = NSAttributedString(
                 string: price + "원",

@@ -107,7 +107,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ClassTableViewCell.identifier, for: indexPath) as! ClassTableViewCell
-        cell.bindData(image: "https://cdn.travie.com/news/photo/first/201710/img_19975_1.jpg", title: "하이", content: "ㅇ너ㅏ리너ㅏ리너ㅏ", price: "50000", salePrice: "500")
+        cell.bindData(image: "https://cdn.travie.com/news/photo/first/201710/img_19975_1.jpg", title: "하이", content: "ㅇ너ㅏ리너ㅏ리너ㅏ", price: "50000", salePrice: "500", category: "외국어")
         return cell
     }
     
