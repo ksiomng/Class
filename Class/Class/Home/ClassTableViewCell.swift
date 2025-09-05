@@ -23,7 +23,7 @@ class ClassTableViewCell: UITableViewCell {
         return label
     }()
     
-    private let classContentLabel = {
+    private let classDescLabel = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
@@ -78,7 +78,7 @@ class ClassTableViewCell: UITableViewCell {
     private func setupUI() {
         contentView.addSubview(classImageView)
         contentView.addSubview(classTitleLabel)
-        contentView.addSubview(classContentLabel)
+        contentView.addSubview(classDescLabel)
         contentView.addSubview(priceLabel)
         contentView.addSubview(salePriceLabel)
         contentView.addSubview(salePersentLabel)
@@ -101,13 +101,13 @@ class ClassTableViewCell: UITableViewCell {
             make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
         }
         
-        classContentLabel.snp.makeConstraints { make in
+        classDescLabel.snp.makeConstraints { make in
             make.top.equalTo(classTitleLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview()
         }
         
         priceLabel.snp.makeConstraints { make in
-            make.top.equalTo(classContentLabel.snp.bottom).offset(8)
+            make.top.equalTo(classDescLabel.snp.bottom).offset(8)
             make.leading.equalToSuperview()
             make.bottom.equalTo(contentView.snp.bottom).offset(-16)
         }
@@ -128,29 +128,37 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    func bindData(image: String, title: String, content: String, price: String, salePrice: String?, category: String) {
+    func bindData(image: String, title: String, content: String, price: String?, salePrice: String?, category: String) {
         classImageView.kf.setImage(with: URL(string: image)!)
         classTitleLabel.text = title
-        classContentLabel.text = content
-        priceLabel.text = price + "원"
+        classDescLabel.text = content
         categoryTag.text = category
-        if let salePrice = salePrice {
-            let attributeString = NSAttributedString(
-                string: price + "원",
-                attributes: [
-                    .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                    .foregroundColor: UIColor.lightGrayC
-                ]
-            )
-            priceLabel.attributedText = attributeString
-
-            salePriceLabel.isHidden = false
-            salePersentLabel.isHidden = false
-            salePriceLabel.text = salePrice + "원"
-            salePersentLabel.text = calculate(price: price, sale: salePrice)
+        if let price = price {
+            priceLabel.text = price + "원"
+            if let salePrice = salePrice {
+                let attributeString = NSAttributedString(
+                    string: price + "원",
+                    attributes: [
+                        .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                        .foregroundColor: UIColor.lightGrayC
+                    ]
+                )
+                priceLabel.attributedText = attributeString
+                
+                salePriceLabel.isHidden = false
+                salePersentLabel.isHidden = false
+                salePriceLabel.text = salePrice + "원"
+                salePersentLabel.text = calculate(price: price, sale: salePrice)
+            } else {
+                priceLabel.attributedText = nil
+                priceLabel.text = price + "원"
+                priceLabel.textColor = .black
+                salePriceLabel.isHidden = true
+                salePersentLabel.isHidden = true
+            }
         } else {
             priceLabel.attributedText = nil
-            priceLabel.text = price + "원"
+            priceLabel.text = "무료"
             priceLabel.textColor = .black
             salePriceLabel.isHidden = true
             salePersentLabel.isHidden = true
