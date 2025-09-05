@@ -70,7 +70,7 @@ class HomeViewController: UIViewController {
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
-                cell.bind(id: element.class_id) { _ in
+                cell.bind(id: element.class_id, like: element.is_liked) {
                     reload.accept(())
                 }
             }

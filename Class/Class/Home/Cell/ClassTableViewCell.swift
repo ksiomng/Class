@@ -84,7 +84,6 @@ class ClassTableViewCell: UITableViewCell {
     
     let viewModel = ClassTableViewCellModel()
     var disposeBag = DisposeBag()
-    var likeStatus = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -166,27 +165,25 @@ class ClassTableViewCell: UITableViewCell {
         categoryTag.text = Category.categories[row.category]
         PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
         
-        self.likeStatus = row.is_liked
-        if likeStatus {
+        if row.is_liked {
             likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
         } else {
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
     }
     
-    func bind(id: String, handler: @escaping (Bool) -> Void) {
+    func bind(id: String, like: Bool, handler: @escaping () -> Void) {
         likeButton.rx.tap
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: id, status: !self.likeStatus), type: Like.self) { [self] result in
+                NetworkManager.shared.callRequest(api: .like(id: id, status: !like), type: Like.self) { result in
                     switch result {
                     case .success(let success):
-                        self.likeStatus = success.like_status
-                        if likeStatus {
+                        if success.like_status {
                             owner.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
                         } else {
                             owner.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
                         }
-                        handler(success.like_status)
+                        handler()
                     case .failure(let failure):
                         print(failure)
                     }
