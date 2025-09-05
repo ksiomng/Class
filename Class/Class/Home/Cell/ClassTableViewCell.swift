@@ -21,7 +21,6 @@ class ClassTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = .largeBoldFont
         label.numberOfLines = 1
-        label.lineBreakMode = .byTruncatingTail
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
@@ -76,7 +75,6 @@ class ClassTableViewCell: UITableViewCell {
         label.layer.borderWidth = 1
         label.layer.borderColor = UIColor.orangeC.cgColor
         label.contentInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
-        label.lineBreakMode = .byClipping
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
@@ -120,7 +118,7 @@ class ClassTableViewCell: UITableViewCell {
         categoryTag.snp.makeConstraints { make in
             make.centerY.equalTo(classTitleLabel)
             make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
-            make.trailing.lessThanOrEqualTo(likeButton.snp.leading).offset(-8) // 버튼 왼쪽까지만
+            make.trailing.lessThanOrEqualToSuperview().offset(-16) // 버튼 왼쪽까지만
         }
         
         classDescLabel.snp.makeConstraints { make in
