@@ -67,7 +67,7 @@ class HomeViewController: UIViewController {
             .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(image: element.image_url, title: element.title, desc: element.description, price: element.price, salePrice: element.sale_price, category: element.category, like: element.is_liked)
+                cell.setupData(row: element)
             }
             .disposed(by: disposeBag)
         

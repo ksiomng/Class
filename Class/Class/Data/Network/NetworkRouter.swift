@@ -11,6 +11,7 @@ import Alamofire
 enum NetworkRouter {
     case login(email: String, password: String)
     case loadClass
+    case like(id: String, status: Bool)
     
     var baseURL: String {
         APIURL.baseURL
@@ -21,7 +22,9 @@ enum NetworkRouter {
         case .login(_, _):
             return URL(string: "\(baseURL)\(APIURL.loginURL)")!
         case .loadClass:
-            return URL(string: "\(baseURL)\(APIURL.getClass)")!
+            return URL(string: "\(baseURL)\(APIURL.getClassURL)")!
+        case .like(let id, _):
+            return URL(string: "\(baseURL)\(APIURL.likeURL(id: id))")!
         }
     }
     
@@ -32,6 +35,8 @@ enum NetworkRouter {
                     "password": password]
         case .loadClass:
             return nil
+        case .like(_, let status):
+            return ["like_status": status]
         }
     }
     
@@ -44,6 +49,10 @@ enum NetworkRouter {
             return ["Content-Type": "application/json",
                     "SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
+        case .like(_, _):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
     
@@ -53,6 +62,8 @@ enum NetworkRouter {
             return JSONEncoding.default
         case .loadClass:
             return URLEncoding.default
+        case .like(_, _):
+            return JSONEncoding.default
         }
     }
     
@@ -62,6 +73,8 @@ enum NetworkRouter {
             return .post
         case .loadClass:
             return .get
+        case .like(_, _):
+            return .post
         }
     }
 }

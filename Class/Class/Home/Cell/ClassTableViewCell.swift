@@ -21,6 +21,9 @@ class ClassTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = .largeBoldFont
         label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
     
@@ -52,10 +55,15 @@ class ClassTableViewCell: UITableViewCell {
         return label
     }()
     
-    private let likeButton = {
+    private let likeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "heart"), for: .normal)
         button.tintColor = .white
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.3
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.layer.shadowRadius = 4
+        button.layer.masksToBounds = false
         return button
     }()
     
@@ -68,11 +76,15 @@ class ClassTableViewCell: UITableViewCell {
         label.layer.borderWidth = 1
         label.layer.borderColor = UIColor.orangeC.cgColor
         label.contentInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
+        label.lineBreakMode = .byClipping
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
     }()
     
     let viewModel = ClassTableViewCellModel()
-    let disposeBag = DisposeBag()
+    var disposeBag = DisposeBag()
+    var likeStatus = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -81,14 +93,7 @@ class ClassTableViewCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        classImageView.image = nil
         priceLabel.attributedText = nil
-        priceLabel.text = nil
-        salePriceLabel.text = nil
-        salePriceLabel.isHidden = true
-        salePersentLabel.text = nil
-        salePersentLabel.isHidden = true
-        likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
     }
     
     private func setupUI() {
@@ -98,7 +103,7 @@ class ClassTableViewCell: UITableViewCell {
         contentView.addSubview(priceLabel)
         contentView.addSubview(salePriceLabel)
         contentView.addSubview(salePersentLabel)
-        classImageView.addSubview(likeButton)
+        contentView.addSubview(likeButton)
         contentView.addSubview(categoryTag)
         
         classImageView.snp.makeConstraints { make in
@@ -110,12 +115,12 @@ class ClassTableViewCell: UITableViewCell {
         classTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(classImageView.snp.bottom).offset(8)
             make.leading.equalToSuperview().inset(16)
-            make.trailing.equalTo(categoryTag.snp.leading).offset(-4)
         }
         
         categoryTag.snp.makeConstraints { make in
             make.centerY.equalTo(classTitleLabel)
-            make.trailing.lessThanOrEqualToSuperview().inset(16).priority(.required)
+            make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
+            make.trailing.lessThanOrEqualTo(likeButton.snp.leading).offset(-8) // 버튼 왼쪽까지만
         }
         
         classDescLabel.snp.makeConstraints { make in
@@ -140,13 +145,13 @@ class ClassTableViewCell: UITableViewCell {
         }
         
         likeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(8)
+            make.top.trailing.equalToSuperview().inset(24)
             make.height.width.equalTo(30)
         }
     }
     
-    func setupData(image: String, title: String, desc: String, price: Int?, salePrice: Int?, category: Int, like: Bool) {
-        let input = ClassTableViewCellModel.Input(imagePath: image)
+    func setupData(row: ClassInfo) {
+        let input = ClassTableViewCellModel.Input(imagePath: row.image_url)
         let output = viewModel.transform(input: input)
         
         output.image
@@ -155,17 +160,40 @@ class ClassTableViewCell: UITableViewCell {
             }
             .disposed(by: disposeBag)
         
-        classTitleLabel.text = title
-        classDescLabel.text = desc
+        classTitleLabel.text = row.title
+        classDescLabel.text = row.description
         
-        categoryTag.text = Category.categories[category]
-        PriceLabel.priceCalculateSale(price: price, salePrice: salePrice, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
+        categoryTag.text = Category.categories[row.category]
+        PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
         
-        if like {
+        self.likeStatus = row.is_liked
+        if likeStatus {
             likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
         } else {
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
         }
+        
+        bind(id: row.class_id)
+    }
+    
+    func bind(id: String) {
+        likeButton.rx.tap
+            .bind(with: self) { owner, _ in
+                NetworkManager.shared.callRequest(api: .like(id: id, status: !self.likeStatus), type: Like.self) { [self] result in
+                    switch result {
+                    case .success(let success):
+                        self.likeStatus = success.like_status
+                        if likeStatus {
+                            owner.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+                        } else {
+                            owner.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+                        }
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     @available(*, unavailable)
