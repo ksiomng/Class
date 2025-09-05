@@ -9,12 +9,12 @@ import UIKit
 
 class InsetLabel: UILabel {
     var contentInsets = UIEdgeInsets.zero
-
+    
     override func drawText(in rect: CGRect) {
         let insetRect = rect.inset(by: contentInsets)
         super.drawText(in: insetRect)
     }
-
+    
     override var intrinsicContentSize: CGSize {
         var size = super.intrinsicContentSize
         size.width += contentInsets.left + contentInsets.right

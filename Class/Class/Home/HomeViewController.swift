@@ -6,8 +6,14 @@
 //
 
 import UIKit
+import SnapKit
+import RxSwift
+import RxCocoa
 
 class HomeViewController: UIViewController {
+    
+    var list = PublishSubject<[ClassInfo]>()
+    let disposeBag = DisposeBag()
     
     private lazy var categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -28,7 +34,6 @@ class HomeViewController: UIViewController {
     let totalCountLabel: UILabel = {
         let label = UILabel()
         label.font = .mediumBoldFont
-        label.text = "4,400"
         return label
     }()
     
@@ -44,21 +49,41 @@ class HomeViewController: UIViewController {
     
     private lazy var classTableView: UITableView = {
         let tableView = UITableView()
-        tableView.dataSource = self
-        tableView.delegate = self
         tableView.register(ClassTableViewCell.self, forCellReuseIdentifier: ClassTableViewCell.identifier)
-        tableView.separatorInset = .zero
-        tableView.layoutMargins = .zero
+        tableView.separatorInset = .init(top: 0, left: 16, bottom: 0, right: 16)
         return tableView
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        bind()
     }
     
     private func bind() {
+        NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
+            switch result {
+            case .success(let success):
+                self.list.onNext(success.data)
+                print(success.data[0].image_url)
+            case .failure(let failure):
+                print(failure)
+            }
+        }
         
+        list
+            .bind(to: classTableView.rx
+                .items(cellIdentifier: ClassTableViewCell.identifier,
+                       cellType: ClassTableViewCell.self)) { (row, element, cell) in
+                cell.setupData(image: element.image_url, title: element.title, desc: element.description, price: element.price, salePrice: element.sale_price, category: element.category)
+            }
+            .disposed(by: disposeBag)
+        
+        list
+            .bind(with: self) { owner, list in
+                owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupUI() {
@@ -86,7 +111,7 @@ class HomeViewController: UIViewController {
         view.addSubview(classTableView)
         classTableView.snp.makeConstraints { make in
             make.top.equalTo(totalCountLabel.snp.bottom).offset(8)
-            make.horizontalEdges.equalToSuperview().inset(16)
+            make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
@@ -101,21 +126,5 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCollectionViewCell.identifier, for: indexPath) as! CategoryCollectionViewCell
         cell.setCategoryName(title: Category.names[indexPath.row])
         return cell
-    }
-}
-
-extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ClassTableViewCell.identifier, for: indexPath) as! ClassTableViewCell
-        cell.bindData(image: "https://cdn.travie.com/news/photo/first/201710/img_19975_1.jpg", title: "하이", content: "ㅇ너ㅏ리너ㅏ리너ㅏ", price: nil, salePrice: nil, category: "외국어")
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return tableView.estimatedRowHeight
     }
 }

@@ -20,6 +20,7 @@ class ClassTableViewCell: UITableViewCell {
     private let classTitleLabel = {
         let label = UILabel()
         label.font = .largeBoldFont
+        label.numberOfLines = 1
         return label
     }()
     
@@ -87,28 +88,29 @@ class ClassTableViewCell: UITableViewCell {
         
         classImageView.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.top).offset(12)
-            make.horizontalEdges.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(16)
             make.height.equalTo(200)
         }
         
         classTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(classImageView.snp.bottom).offset(8)
-            make.leading.equalToSuperview()
+            make.leading.equalToSuperview().inset(16)
         }
         
         categoryTag.snp.makeConstraints { make in
             make.centerY.equalTo(classTitleLabel)
             make.leading.equalTo(classTitleLabel.snp.trailing).offset(4)
+            make.trailing.lessThanOrEqualToSuperview().inset(16).priority(.required)
         }
         
         classDescLabel.snp.makeConstraints { make in
             make.top.equalTo(classTitleLabel.snp.bottom).offset(8)
-            make.leading.equalToSuperview()
+            make.horizontalEdges.equalToSuperview().inset(16)
         }
         
         priceLabel.snp.makeConstraints { make in
             make.top.equalTo(classDescLabel.snp.bottom).offset(8)
-            make.leading.equalToSuperview()
+            make.leading.equalToSuperview().offset(16)
             make.bottom.equalTo(contentView.snp.bottom).offset(-16)
         }
         
@@ -123,21 +125,28 @@ class ClassTableViewCell: UITableViewCell {
         }
         
         likeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(16)
+            make.top.trailing.equalToSuperview().inset(8)
             make.height.width.equalTo(30)
         }
     }
     
-    func bindData(image: String, title: String, content: String, price: String?, salePrice: String?, category: String) {
-        classImageView.kf.setImage(with: URL(string: image)!)
+    func setupData(image: String, title: String, desc: String, price: Int?, salePrice: Int?, category: Int) {
+        NetworkManager.shared.callImage(imagePath: image) { result in
+            switch result {
+            case .success(let success):
+                self.classImageView.image = success
+            case .failure(let failure):
+                print(failure)
+            }
+        }
         classTitleLabel.text = title
-        classDescLabel.text = content
-        categoryTag.text = category
+        classDescLabel.text = desc
+        categoryTag.text = Category.categories[category]
         if let price = price {
-            priceLabel.text = price + "원"
+            priceLabel.text = StringFormatter.formatWithComma(price) + "원"
             if let salePrice = salePrice {
                 let attributeString = NSAttributedString(
-                    string: price + "원",
+                    string: StringFormatter.formatWithComma(price) + "원",
                     attributes: [
                         .strikethroughStyle: NSUnderlineStyle.single.rawValue,
                         .foregroundColor: UIColor.lightGrayC
@@ -147,11 +156,11 @@ class ClassTableViewCell: UITableViewCell {
                 
                 salePriceLabel.isHidden = false
                 salePersentLabel.isHidden = false
-                salePriceLabel.text = salePrice + "원"
+                salePriceLabel.text = StringFormatter.formatWithComma(salePrice) + "원"
                 salePersentLabel.text = calculate(price: price, sale: salePrice)
             } else {
                 priceLabel.attributedText = nil
-                priceLabel.text = price + "원"
+                priceLabel.text = StringFormatter.formatWithComma(price) + "원"
                 priceLabel.textColor = .black
                 salePriceLabel.isHidden = true
                 salePersentLabel.isHidden = true
@@ -165,8 +174,8 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    private func calculate(price: String, sale: String) -> String {
-        let discountRate = ((Float(price)! - Float(sale)!) / Float(price)!) * 100
+    private func calculate(price: Int, sale: Int) -> String {
+        let discountRate = ((Float(price) - Float(sale)) / Float(price)) * 100
         let roundedRate = Int(discountRate.rounded())
         return "\(roundedRate)%"
     }

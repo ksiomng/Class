@@ -9,7 +9,7 @@ import UIKit
 
 final class RootViewControllerManager {
     private init() { }
-
+    
     static func getRootViewController() -> UIViewController {
         if UserDefaultsHelper.shared.checkLogin() {
             let homeVC = UINavigationController(rootViewController: HomeViewController())

@@ -20,7 +20,7 @@ final class NetworkManager {
                    parameters: api.parameters,
                    encoding: api.encoding,
                    headers: api.headers)
-            .responseDecodable(of: T.self) { response in
+        .responseDecodable(of: T.self) { response in
             switch response.result {
             case .success(let value):
                 handler(.success(value))
@@ -28,5 +28,30 @@ final class NetworkManager {
                 handler(.failure(error))
             }
         }
+    }
+    
+    func callImage(imagePath: String,
+                   handler: @escaping (Result<UIImage, Error>) -> Void) {
+        
+        let imageURL = URL(string: "\(APIURL.baseURL)/v1\(imagePath)")!
+        
+        let headers: HTTPHeaders = [
+            "Content-Type": "application/json",
+            "SesacKey": "\(APIKey.key)",
+            "Authorization": UserDefaultsHelper.shared.token!
+        ]
+        
+        AF.request(imageURL, method: .get, headers: headers)
+            .validate(statusCode: 200..<300)
+            .responseData { response in
+                switch response.result {
+                case .success(let data):
+                    if let image = UIImage(data: data) {
+                        handler(.success(image))
+                    }
+                case .failure(let error):
+                    handler(.failure(error))
+                }
+            }
     }
 }

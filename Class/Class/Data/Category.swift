@@ -8,17 +8,17 @@
 final class Category {
     private init() { }
     
-    static let categories = ["개발": 101,
-                               "디자인": 102,
-                               "외국어": 201,
-                               "라이프": 202,
-                               "뷰티": 203,
-                               "제테크": 301,
-                               "기타": 900
+    static let categories = [ 101: "개발",
+                              102: "디자인",
+                              201: "외국어",
+                              202: "라이프",
+                              203: "뷰티",
+                              301: "제테크",
+                              900: "기타"
     ]
     
     static var names: [String] {
-        var arr = categories.keys.map {$0}
+        var arr = categories.values.map { $0 }
         arr.insert("전체", at: 0)
         return arr
     }

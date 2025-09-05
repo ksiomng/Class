@@ -10,6 +10,7 @@ import Alamofire
 
 enum NetworkRouter {
     case login(email: String, password: String)
+    case loadClass
     
     var baseURL: String {
         APIURL.baseURL
@@ -19,14 +20,18 @@ enum NetworkRouter {
         switch self {
         case .login(_, _):
             return URL(string: "\(baseURL)\(APIURL.loginURL)")!
+        case .loadClass:
+            return URL(string: "\(baseURL)\(APIURL.getClass)")!
         }
     }
     
-    var parameters: Parameters {
+    var parameters: Parameters? {
         switch self {
         case .login(let email, let password):
             return ["email": email,
                     "password": password]
+        case .loadClass:
+            return nil
         }
     }
     
@@ -35,6 +40,10 @@ enum NetworkRouter {
         case .login(_ , _):
             return ["Content-Type": "application/json",
                     "SesacKey": "\(APIKey.key)"]
+        case .loadClass:
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
     
@@ -42,6 +51,8 @@ enum NetworkRouter {
         switch self {
         case .login:
             return JSONEncoding.default
+        case .loadClass:
+            return URLEncoding.default
         }
     }
     
@@ -49,6 +60,8 @@ enum NetworkRouter {
         switch self {
         case .login:
             return .post
+        case .loadClass:
+            return .get
         }
     }
 }
