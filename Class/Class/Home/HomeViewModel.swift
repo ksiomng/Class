@@ -46,7 +46,6 @@ final class HomeViewModel {
         
         input.selectedCategory
             .bind(with: self) { owner, value in
-                print(value)
                 list.accept(owner.filterCategory(categories: value))
             }
             .disposed(by: disposeBag)
@@ -84,8 +83,11 @@ final class HomeViewModel {
     }
     
     private func filterCategory(categories: [String]) -> [ClassInfo] {
-        let result = allList.value.filter { classInfo in
-            return categories.contains(Category.categories[classInfo.category]!)
+        var result: [ClassInfo] = []
+        if categories.contains("전체") {
+            result = allList.value
+        } else {
+            result = allList.value.filter { categories.contains(Category.categories[$0.category]!) }
         }
         return result
     }

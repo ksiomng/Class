@@ -53,4 +53,14 @@ class CategoryCollectionViewCell: UICollectionViewCell {
     func setCategoryName(title: String) {
         categoryLabel.text = title
     }
+    
+    func setSelectedUI(_ selected: Bool) {
+        if selected {
+            labelBackgroundView.layer.borderColor = UIColor.orangeC.cgColor
+            categoryLabel.textColor = .orangeC
+        } else {
+            labelBackgroundView.layer.borderColor = UIColor.lightGrayC.cgColor
+            categoryLabel.textColor = .lightGrayC
+        }
+    }
 }

@@ -51,7 +51,7 @@ class HomeViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     private let viewModel = HomeViewModel()
-    private let selectedCategory = BehaviorRelay<[String]>(value: [])
+    private let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
     private let isLatest = BehaviorRelay<Bool>(value: true)
     
     override func viewDidLoad() {
@@ -98,6 +98,8 @@ class HomeViewController: UIViewController {
             .bind(to: categoryCollectionView.rx
                 .items(cellIdentifier: CategoryCollectionViewCell.identifier,cellType: CategoryCollectionViewCell.self)) { index, element, cell in
                     cell.setCategoryName(title: element)
+                    let isSelected = self.selectedCategory.value.contains(element)
+                    cell.setSelectedUI(isSelected)
                 }
                 .disposed(by: disposeBag)
         
@@ -106,12 +108,20 @@ class HomeViewController: UIViewController {
             .map { Category.names[$0.row] }
             .bind(with: self) { owner, tapped in
                 var current = owner.selectedCategory.value
-                if current.contains(tapped) {
-                    current.removeAll { $0 == tapped }
+                
+                if tapped == "전체" {
+                    current = ["전체"]
                 } else {
-                    current.append(tapped)
+                    current.removeAll { $0 == "전체" }
+                    if current.contains(tapped) {
+                        current.removeAll { $0 == tapped }
+                    } else {
+                        current.append(tapped)
+                    }
                 }
                 owner.selectedCategory.accept(current)
+                owner.categoryCollectionView.reloadData()
+                owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
             .disposed(by: disposeBag)
     }
