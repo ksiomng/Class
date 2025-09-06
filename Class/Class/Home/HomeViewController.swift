@@ -20,8 +20,6 @@ class HomeViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.delegate = self
-        collectionView.dataSource = self
         collectionView.backgroundColor = .white
         collectionView.register(CategoryCollectionViewCell.self, forCellWithReuseIdentifier: CategoryCollectionViewCell.identifier)
         collectionView.showsHorizontalScrollIndicator = false
@@ -53,6 +51,8 @@ class HomeViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     private let viewModel = HomeViewModel()
+    private let selectedCategory = BehaviorRelay<[String]>(value: [])
+    private let isLatest = BehaviorRelay<Bool>(value: true)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,7 +62,7 @@ class HomeViewController: UIViewController {
     
     private func bind() {
         let reload = BehaviorRelay<Void>(value: ())
-        let input = HomeViewModel.Input(callData: reload)
+        let input = HomeViewModel.Input(callData: reload, selectedCategory: selectedCategory, isLatest: isLatest)
         let output = viewModel.transform(input: input)
         
         output.list
@@ -73,7 +73,7 @@ class HomeViewController: UIViewController {
                     reload.accept(())
                 }
             }
-            .disposed(by: disposeBag)
+                       .disposed(by: disposeBag)
         
         output.list
             .drive(with: self) { owner, list in
@@ -83,14 +83,35 @@ class HomeViewController: UIViewController {
         
         sortButton.rx.tap
             .bind(with: self) { owner, _ in
-                if owner.sortButton.currentTitle == "최신순" {
-                    owner.viewModel.sortByHighPrice()
+                if owner.isLatest.value {
+                    owner.isLatest.accept(false)
                     owner.sortButton.setTitle("가격순", for: .normal)
                 } else {
-                    owner.viewModel.sortByLatest()
+                    owner.isLatest.accept(true)
                     owner.sortButton.setTitle("최신순", for: .normal)
                 }
                 owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        viewModel.categories
+            .bind(to: categoryCollectionView.rx
+                .items(cellIdentifier: CategoryCollectionViewCell.identifier,cellType: CategoryCollectionViewCell.self)) { index, element, cell in
+                    cell.setCategoryName(title: element)
+                }
+                .disposed(by: disposeBag)
+        
+        
+        categoryCollectionView.rx.itemSelected
+            .map { Category.names[$0.row] }
+            .bind(with: self) { owner, tapped in
+                var current = owner.selectedCategory.value
+                if current.contains(tapped) {
+                    current.removeAll { $0 == tapped }
+                } else {
+                    current.append(tapped)
+                }
+                owner.selectedCategory.accept(current)
             }
             .disposed(by: disposeBag)
     }
@@ -123,17 +144,5 @@ class HomeViewController: UIViewController {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-    }
-}
-
-extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        Category.names.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCollectionViewCell.identifier, for: indexPath) as! CategoryCollectionViewCell
-        cell.setCategoryName(title: Category.names[indexPath.row])
-        return cell
     }
 }

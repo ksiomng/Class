@@ -20,11 +20,11 @@ class CategoryCollectionViewCell: UICollectionViewCell {
         return view
     }()
     
-    private let categoryButton = {
-        let button = UIButton()
-        button.titleLabel?.font = .mediumBoldFont
-        button.setTitleColor(.lightGrayC, for: .normal)
-        return button
+    private let categoryLabel = {
+        let label = UILabel()
+        label.font = .mediumBoldFont
+        label.textColor = .lightGrayC
+        return label
     }()
     
     override init(frame: CGRect) {
@@ -34,13 +34,13 @@ class CategoryCollectionViewCell: UICollectionViewCell {
     
     private func setupUI() {
         contentView.addSubview(labelBackgroundView)
-        labelBackgroundView.addSubview(categoryButton)
+        labelBackgroundView.addSubview(categoryLabel)
         
         labelBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(2)
         }
         
-        categoryButton.snp.makeConstraints { make in
+        categoryLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
     }
@@ -51,6 +51,6 @@ class CategoryCollectionViewCell: UICollectionViewCell {
     }
     
     func setCategoryName(title: String) {
-        categoryButton.setTitle(title, for: .normal)
+        categoryLabel.text = title
     }
 }
