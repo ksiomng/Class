@@ -48,8 +48,8 @@ final class HomeViewModel {
     
     func sortByHighPrice() {
         let sorted = list.value.sorted { lhs, rhs in
-            let lhsPrice = lhs.sale_price ?? lhs.price ?? 0
-            let rhsPrice = rhs.sale_price ?? rhs.price ?? 0
+            let lhsPrice = lhs.price ?? 0
+            let rhsPrice = rhs.price ?? 0
             if lhsPrice == rhsPrice {
                 return lhs.created_at > rhs.created_at
             } else {
