@@ -28,13 +28,13 @@ class HomeViewController: UIViewController {
         return collectionView
     }()
     
-    let totalCountLabel: UILabel = {
+    private let totalCountLabel: UILabel = {
         let label = UILabel()
         label.font = .mediumBoldFont
         return label
     }()
     
-    let sortButton: UIButton = {
+    private let sortButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = .mediumBoldFont
         button.setTitle("최신순", for: .normal)
@@ -78,6 +78,19 @@ class HomeViewController: UIViewController {
         output.list
             .drive(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
+            }
+            .disposed(by: disposeBag)
+        
+        sortButton.rx.tap
+            .bind(with: self) { owner, _ in
+                if owner.sortButton.currentTitle == "최신순" {
+                    owner.viewModel.sortByHighPrice()
+                    owner.sortButton.setTitle("가격순", for: .normal)
+                } else {
+                    owner.viewModel.sortByLatest()
+                    owner.sortButton.setTitle("최신순", for: .normal)
+                }
+                owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
             .disposed(by: disposeBag)
     }
