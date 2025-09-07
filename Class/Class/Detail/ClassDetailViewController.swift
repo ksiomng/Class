@@ -12,7 +12,7 @@ import RxCocoa
 
 class ClassDetailViewController: UIViewController {
     
-    var data: ClassDetailInfo = ClassDetailInfo(class_id: "", category: 0, title: "", description: "", price: 0, sale_price: 0, location: "", date: "", capacity: 0, image_urls: [], created_at: "", is_liked: false, creator: User(user_id: "", nick: "", priprofileImage: ""))
+    var data: ClassDetailInfo?
     
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -38,8 +38,9 @@ class ClassDetailViewController: UIViewController {
     }
     
     private func setupUI() {
+        guard let detailData = data else { return }
         view.backgroundColor = .white
-        navigationItem.title = data.title
+        navigationItem.title = detailData.title
         
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
@@ -50,7 +51,8 @@ class ClassDetailViewController: UIViewController {
     }
     
     private func bind() {
-        let imageList = BehaviorSubject(value: data.image_urls)
+        guard let detailData = data else { return }
+        let imageList = BehaviorSubject(value: detailData.image_urls)
         
         imageList
             .bind(to: collectionView.rx

@@ -72,8 +72,16 @@ class SearchViewController: UIViewController {
         
         classTableView.rx.modelSelected(ClassInfo.self)
             .bind(with: self) { owner , model in
-                let vc = ClassDetailViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
+                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
+                    switch result {
+                    case .success(let success):
+                        let vc = ClassDetailViewController()
+                        vc.data = success
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
             }
             .disposed(by: disposeBag)
     }
