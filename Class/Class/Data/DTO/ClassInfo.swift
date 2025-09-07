@@ -43,6 +43,6 @@ struct ClassDetailInfo: Decodable {
 struct User: Decodable {
     let user_id: String
     let nick: String
-    let priprofileImage: String?
+    let profileImage: String?
 }
 

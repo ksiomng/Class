@@ -137,6 +137,7 @@ class HomeViewController: UIViewController {
                     case .success(let success):
                         let vc = ClassDetailViewController()
                         vc.data = success
+                        vc.hidesBottomBarWhenPushed = true
                         self.navigationController?.pushViewController(vc, animated: true)
                     case .failure(let failure):
                         print(failure)
