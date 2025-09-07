@@ -82,6 +82,7 @@ class ClassTableViewCell: UITableViewCell {
     
     let viewModel = ClassTableViewCellModel()
     var disposeBag = DisposeBag()
+    private var liked = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -148,7 +149,7 @@ class ClassTableViewCell: UITableViewCell {
         }
     }
     
-    func setupData(row: ClassInfo, handler: @escaping () -> Void) {
+    func setupData(row: ClassInfo) {
         
         let input = ClassTableViewCellModel.Input(imagePath: row.image_url)
         let output = viewModel.transform(input: input)
@@ -165,24 +166,30 @@ class ClassTableViewCell: UITableViewCell {
         categoryTag.text = Category.categories[row.category]
         PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
         
-        if row.is_liked {
-            likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        } else {
-            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-        }
+        liked = row.is_liked
+        statusLikeButton(isLiked: liked)
         
         likeButton.rx.tap
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: row.class_id, status: !row.is_liked), type: Like.self) { result in
+                NetworkManager.shared.callRequest(api: .like(id: row.class_id, status: !owner.liked), type: Like.self) { result in
                     switch result {
-                    case .success(_):
-                        handler()
+                    case .success(let success):
+                        owner.liked = success.like_status
+                        owner.statusLikeButton(isLiked: owner.liked)
                     case .failure(let failure):
                         print(failure)
                     }
                 }
             }
             .disposed(by: disposeBag)
+    }
+    
+    private func statusLikeButton(isLiked: Bool) {
+        if isLiked {
+            likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        } else {
+            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
     }
     
     @available(*, unavailable)

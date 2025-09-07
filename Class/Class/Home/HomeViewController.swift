@@ -74,9 +74,7 @@ class HomeViewController: UIViewController {
             .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element) {
-                    reload.accept(())
-                }
+                cell.setupData(row: element)
             }
                        .disposed(by: disposeBag)
         

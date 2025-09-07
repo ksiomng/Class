@@ -64,9 +64,7 @@ class SearchViewController: UIViewController {
             .drive(classTableView.rx
                 .items(cellIdentifier: SearchClassTableViewCell.identifier,
                        cellType: SearchClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element) {
-                    reload.accept(())
-                }
+                cell.setupData(row: element) 
             }
             .disposed(by: disposeBag)
         
