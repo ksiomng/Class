@@ -65,7 +65,7 @@ class HomeViewController: UIViewController {
     }
     
     private func bind(reload: PublishRelay<Void>) {
-        let input = HomeViewModel.Input(reload: reload, sortButtonTap: sortButton.rx.tap, categoryTap: categoryCollectionView.rx.itemSelected)
+        let input = HomeViewModel.Input(reload: reload, sortButtonTap: sortButton.rx.tap, categoryTap: categoryCollectionView.rx.itemSelected, moveDetailTap: classTableView.rx.modelSelected(ClassInfo.self))
         let output = viewModel.transform(input: input)
         
         output.list
@@ -107,6 +107,16 @@ class HomeViewController: UIViewController {
         output.selectedCategory
             .bind(with: self) { owner, _ in
                 owner.categoryCollectionView.reloadData()
+            }
+            .disposed(by: disposeBag)
+        
+        output.moveDetail
+            .skip(1)
+            .bind { value in
+                let vc = ClassDetailViewController()
+                vc.data = value
+                vc.hidesBottomBarWhenPushed = true
+                self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }

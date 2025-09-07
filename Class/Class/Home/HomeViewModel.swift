@@ -15,6 +15,7 @@ final class HomeViewModel {
         let reload: PublishRelay<Void>
         let sortButtonTap: ControlEvent<Void>
         let categoryTap: ControlEvent<IndexPath>
+        let moveDetailTap: ControlEvent<ClassInfo>
     }
     
     struct Output {
@@ -22,6 +23,7 @@ final class HomeViewModel {
         let isLatest: BehaviorRelay<Bool>
         let selectedCategory: BehaviorRelay<[String]>
         let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: Category.names)
+        let moveDetail: BehaviorRelay<ClassDetailInfo?>
     }
     
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
@@ -33,6 +35,7 @@ final class HomeViewModel {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         let isLatest = BehaviorRelay<Bool>(value: true)
         let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
+        let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
         
         input.reload
             .withLatestFrom(Observable.combineLatest(selectedCategory, isLatest))
@@ -60,10 +63,10 @@ final class HomeViewModel {
             .disposed(by: disposeBag)
         
         input.sortButtonTap
-            .withLatestFrom(isLatest) {_,value in
-                return !value
+            .withLatestFrom(isLatest)
+            .bind { value in
+                isLatest.accept(!value)
             }
-            .bind(to: isLatest)
             .disposed(by: disposeBag)
         
         input.categoryTap
@@ -85,13 +88,25 @@ final class HomeViewModel {
                         updated.append(tapped)
                     }
                 }
-                
                 return updated
             }
             .bind(to: selectedCategory)
             .disposed(by: disposeBag)
         
-        return Output(list: list.asDriver(), isLatest: isLatest, selectedCategory: selectedCategory)
+        input.moveDetailTap
+            .bind(with: self) { owner , model in
+                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
+                    switch result {
+                    case .success(let success):
+                        moveDetail.accept(success)
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        return Output(list: list.asDriver(), isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail)
     }
     
     private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {
