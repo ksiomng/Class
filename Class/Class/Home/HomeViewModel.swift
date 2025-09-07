@@ -23,7 +23,7 @@ final class HomeViewModel {
     
     let categories = BehaviorRelay<[String]>(value: Category.names)
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
-    let disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
     
     init() { }
     
@@ -31,12 +31,14 @@ final class HomeViewModel {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         
         input.reload
-            .bind(with: self) { owenr, _ in
+            .withLatestFrom(Observable.combineLatest(input.selectedCategory, input.isLatest))
+            .bind(with: self) { owner, state in
                 NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
                     switch result {
                     case .success(let success):
-                        list.accept(success.data)
-                        owenr.allList.accept(success.data)
+                        owner.allList.accept(success.data)
+                        let processedData = owner.sortAndFilter(data: owner.allList.value, categories: state.0, isLatest: state.1)
+                        list.accept(processedData)
                     case .failure(let failure):
                         print(failure)
                     }
@@ -44,24 +46,24 @@ final class HomeViewModel {
             }
             .disposed(by: disposeBag)
         
-        input.selectedCategory
-            .bind(with: self) { owner, value in
-                list.accept(owner.filterCategory(categories: value))
-            }
-            .disposed(by: disposeBag)
-        
         Observable
-            .combineLatest(input.isLatest, input.selectedCategory)
-            .bind(with: self) { owner, value in
-                if value.0 {
-                    list.accept(owner.sortByLatest(list: list.value))
-                } else {
-                    list.accept(owner.sortByHighPrice(list: list.value))
-                }
+            .combineLatest(input.selectedCategory, input.isLatest)
+            .skip(1)
+            .bind(with: self) { owner, state in
+                let processedData = owner.sortAndFilter(data: owner.allList.value, categories: state.0, isLatest: state.1)
+                list.accept(processedData)
             }
             .disposed(by: disposeBag)
         
         return Output(list: list.asDriver())
+    }
+    
+    private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {
+        let filterData = filterCategory(data: data, categories: categories)
+        
+        let sortAndFilterData = isLatest ? sortByLatest(list: filterData) : sortByHighPrice(list: filterData)
+        
+        return sortAndFilterData
     }
     
     private func sortByLatest(list: [ClassInfo]) -> [ClassInfo] {
@@ -82,12 +84,12 @@ final class HomeViewModel {
         return sorted
     }
     
-    private func filterCategory(categories: [String]) -> [ClassInfo] {
+    private func filterCategory(data: [ClassInfo], categories: [String]) -> [ClassInfo] {
         var result: [ClassInfo] = []
         if categories.contains("전체") {
-            result = allList.value
+            result = data
         } else {
-            result = allList.value.filter { categories.contains(Category.categories[$0.category]!) }
+            result = data.filter { categories.contains(Category.categories[$0.category]!) }
         }
         return result
     }
