@@ -73,7 +73,6 @@ class SearchViewController: UIViewController {
         classTableView.rx.modelSelected(ClassInfo.self)
             .bind(with: self) { owner , model in
                 let vc = ClassDetailViewController()
-                vc.className = model.title
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

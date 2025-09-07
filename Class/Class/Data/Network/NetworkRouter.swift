@@ -13,6 +13,7 @@ enum NetworkRouter {
     case loadClass
     case like(id: String, status: Bool)
     case seasrch(keyword: String)
+    case detail(id: String)
     
     var baseURL: String {
         APIURL.baseURL
@@ -28,6 +29,8 @@ enum NetworkRouter {
             return URL(string: "\(baseURL)\(APIURL.likeURL(id: id))")!
         case .seasrch(_):
             return URL(string: "\(baseURL)\(APIURL.searchURL)")!
+        case .detail(let id):
+            return URL(string: "\(baseURL)\(APIURL.detailURL(id: id))")!
         }
     }
     
@@ -42,6 +45,8 @@ enum NetworkRouter {
             return ["like_status": status]
         case .seasrch(let keyword):
             return ["title": keyword]
+        case .detail(_):
+            return nil
         }
     }
     
@@ -62,6 +67,10 @@ enum NetworkRouter {
             return ["Content-Type": "application/json",
                     "SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
+        case .detail(_):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
     
@@ -75,6 +84,8 @@ enum NetworkRouter {
             return JSONEncoding.default
         case .seasrch(_):
             return URLEncoding.default
+        case .detail(_):
+            return URLEncoding.default
         }
     }
     
@@ -87,6 +98,8 @@ enum NetworkRouter {
         case .like(_, _):
             return .post
         case .seasrch(_):
+            return .get
+        case .detail(_):
             return .get
         }
     }

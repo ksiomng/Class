@@ -31,9 +31,9 @@ struct ClassDetailInfo: Decodable {
     let description: String
     let price: Int?
     let sale_price: Int?
-    let location: String
-    let date: String
-    let capacity: String
+    let location: String?
+    let date: String?
+    let capacity: Int?
     let image_urls: [String]
     let created_at: String
     let is_liked: Bool
