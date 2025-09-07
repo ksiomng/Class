@@ -15,11 +15,13 @@ final class SearchViewModel {
         let reload: PublishRelay<Void>
         let searchTap: ControlEvent<Void>
         let searchText: ControlProperty<String>
+        let moveDetailTap: ControlEvent<ClassInfo>
     }
     
     struct Output {
         let message: BehaviorRelay<String?>
         let list: Driver<[ClassInfo]>
+        let moveDetail: BehaviorRelay<ClassDetailInfo?>
     }
     
     let disposeBag = DisposeBag()
@@ -29,6 +31,7 @@ final class SearchViewModel {
     func transform(input: Input) -> Output {
         let message = BehaviorRelay<String?>(value: "원하는 클래스가 있으신가요?")
         let list = BehaviorRelay<[ClassInfo]>(value: [])
+        let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
         
         input.reload
             .withLatestFrom(input.searchText)
@@ -64,6 +67,19 @@ final class SearchViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(message: message, list: list.asDriver())
+        input.moveDetailTap
+            .bind(with: self) { owner , model in
+                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
+                    switch result {
+                    case .success(let success):
+                        moveDetail.accept(success)
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        return Output(message: message, list: list.asDriver(), moveDetail: moveDetail)
     }
 }

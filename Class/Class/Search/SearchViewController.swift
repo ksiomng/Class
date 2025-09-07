@@ -44,7 +44,7 @@ class SearchViewController: UIViewController {
     }
     
     private func bind(reload: PublishRelay<Void>) {
-        let input = SearchViewModel.Input(reload: reload, searchTap: searchBar.rx.searchButtonClicked, searchText: searchBar.rx.text.orEmpty)
+        let input = SearchViewModel.Input(reload: reload, searchTap: searchBar.rx.searchButtonClicked, searchText: searchBar.rx.text.orEmpty, moveDetailTap: classTableView.rx.modelSelected(ClassInfo.self))
         let output = viewModel.transform(input: input)
         
         output.message
@@ -68,19 +68,13 @@ class SearchViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        classTableView.rx.modelSelected(ClassInfo.self)
-            .bind(with: self) { owner , model in
-                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
-                    switch result {
-                    case .success(let success):
-                        let vc = ClassDetailViewController()
-                        vc.data = success
-                        vc.hidesBottomBarWhenPushed = true
-                        self.navigationController?.pushViewController(vc, animated: true)
-                    case .failure(let failure):
-                        print(failure)
-                    }
-                }
+        output.moveDetail
+            .skip(1)
+            .bind { value in
+                let vc = ClassDetailViewController()
+                vc.data = value
+                vc.hidesBottomBarWhenPushed = true
+                self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
