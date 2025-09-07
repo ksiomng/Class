@@ -73,6 +73,7 @@ class HomeViewController: UIViewController {
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
+                cell.selectionStyle = .none
             }
             .disposed(by: disposeBag)
         

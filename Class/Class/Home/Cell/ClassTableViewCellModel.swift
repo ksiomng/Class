@@ -13,10 +13,14 @@ final class ClassTableViewCellModel {
     
     struct Input {
         let imagePath: String
+        let likeButtonTap: ControlEvent<Void>
+        let id: String
+        let liked: Bool
     }
     
     struct Output {
         var image: Driver<UIImage>
+        let isLiked: BehaviorRelay<Bool>
     }
     
     let disposeBag = DisposeBag()
@@ -25,6 +29,7 @@ final class ClassTableViewCellModel {
     
     func transform(input: Input) -> Output {
         let image = BehaviorRelay<UIImage>(value: UIImage())
+        let isLiked = BehaviorRelay<Bool>(value: input.liked)
         
         NetworkManager.shared.callImage(imagePath: input.imagePath) { result in
             switch result {
@@ -35,6 +40,19 @@ final class ClassTableViewCellModel {
             }
         }
         
-        return Output(image: image.asDriver())
+        input.likeButtonTap
+            .bind(with: self) { owner, _ in
+                NetworkManager.shared.callRequest(api: .like(id: input.id, status: !isLiked.value), type: Like.self) { result in
+                    switch result {
+                    case .success(let success):
+                        isLiked.accept(success.like_status)
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        return Output(image: image.asDriver(), isLiked: isLiked)
     }
 }

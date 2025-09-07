@@ -64,7 +64,8 @@ class SearchViewController: UIViewController {
             .drive(classTableView.rx
                 .items(cellIdentifier: SearchClassTableViewCell.identifier,
                        cellType: SearchClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element) 
+                cell.setupData(row: element)
+                cell.selectionStyle = .none
             }
             .disposed(by: disposeBag)
         

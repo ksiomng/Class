@@ -82,7 +82,6 @@ class ClassTableViewCell: UITableViewCell {
     
     let viewModel = ClassTableViewCellModel()
     var disposeBag = DisposeBag()
-    private var liked = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -150,8 +149,7 @@ class ClassTableViewCell: UITableViewCell {
     }
     
     func setupData(row: ClassInfo) {
-        
-        let input = ClassTableViewCellModel.Input(imagePath: row.image_url)
+        let input = ClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked)
         let output = viewModel.transform(input: input)
         
         output.image
@@ -160,28 +158,16 @@ class ClassTableViewCell: UITableViewCell {
             }
             .disposed(by: disposeBag)
         
-        classTitleLabel.text = row.title
-        classDescLabel.text = row.description
-        
-        categoryTag.text = Category.categories[row.category]
-        PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
-        
-        liked = row.is_liked
-        statusLikeButton(isLiked: liked)
-        
-        likeButton.rx.tap
-            .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: row.class_id, status: !owner.liked), type: Like.self) { result in
-                    switch result {
-                    case .success(let success):
-                        owner.liked = success.like_status
-                        owner.statusLikeButton(isLiked: owner.liked)
-                    case .failure(let failure):
-                        print(failure)
-                    }
-                }
+        output.isLiked
+            .bind(with: self) { owner, value in
+                owner.statusLikeButton(isLiked: value)
             }
             .disposed(by: disposeBag)
+        
+        classTitleLabel.text = row.title
+        classDescLabel.text = row.description
+        categoryTag.text = Category.categories[row.category]
+        PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
     }
     
     private func statusLikeButton(isLiked: Bool) {
