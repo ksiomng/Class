@@ -129,6 +129,14 @@ class HomeViewController: UIViewController {
                 owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        classTableView.rx.modelSelected(ClassInfo.self)
+            .bind(with: self) { owner , model in
+                let vc = ClassDetailViewController()
+                vc.className = model.title
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupUI() {

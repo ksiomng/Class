@@ -11,14 +11,18 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         let standard = UINavigationBarAppearance()
         standard.configureWithTransparentBackground()
         standard.backgroundColor = .clear
-        standard.titleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        standard.backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        
         UINavigationBar.appearance().scrollEdgeAppearance = standard
         UINavigationBar.appearance().standardAppearance = standard
+        UINavigationBar.appearance().tintColor = .systemGray
+        
         return true
     }
 
