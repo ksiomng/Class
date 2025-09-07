@@ -78,6 +78,7 @@ class HomeViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.list
+            .asDriver()
             .drive(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
                 if list.count != 0 {
@@ -87,7 +88,8 @@ class HomeViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.isLatest
-            .bind(with: self) { owner, value in
+            .asDriver()
+            .drive(with: self) { owner, value in
                 if value {
                     owner.sortButton.setTitle("가격순", for: .normal)
                 } else {

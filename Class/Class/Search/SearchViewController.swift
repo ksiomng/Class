@@ -48,7 +48,8 @@ class SearchViewController: UIViewController {
         let output = viewModel.transform(input: input)
         
         output.message
-            .bind(with: self) { owner, value in
+            .asDriver()
+            .drive(with: self) { owner, value in
                 if value != nil {
                     owner.classTableView.isHidden = true
                     owner.centerLabel.isHidden = false
@@ -56,6 +57,7 @@ class SearchViewController: UIViewController {
                 } else {
                     owner.classTableView.isHidden = false
                     owner.centerLabel.isHidden = true
+                    owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
                 }
             }
             .disposed(by: disposeBag)

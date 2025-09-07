@@ -146,7 +146,8 @@ class SearchClassTableViewCell: UITableViewCell {
             .disposed(by: disposeBag)
         
         output.isLiked
-            .bind(with: self) { owner, value in
+            .asDriver()
+            .drive(with: self) { owner, value in
                 owner.statusLikeButton(isLiked: value)
             }
             .disposed(by: disposeBag)

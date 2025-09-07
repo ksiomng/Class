@@ -153,13 +153,15 @@ class ClassTableViewCell: UITableViewCell {
         let output = viewModel.transform(input: input)
         
         output.image
+            .asDriver()
             .drive(with: self) { owner, image in
                 owner.classImageView.image = image
             }
             .disposed(by: disposeBag)
         
         output.isLiked
-            .bind(with: self) { owner, value in
+            .asDriver()
+            .drive(with: self) { owner, value in
                 owner.statusLikeButton(isLiked: value)
             }
             .disposed(by: disposeBag)
