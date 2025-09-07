@@ -53,16 +53,21 @@ class HomeViewController: UIViewController {
     private let viewModel = HomeViewModel()
     private let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
     private let isLatest = BehaviorRelay<Bool>(value: true)
+    let reload = PublishRelay<Void>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        bind()
+        bind(reload: reload)
     }
     
-    private func bind() {
-        let reload = BehaviorRelay<Void>(value: ())
-        let input = HomeViewModel.Input(callData: reload, selectedCategory: selectedCategory, isLatest: isLatest)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reload.accept(())
+    }
+    
+    private func bind(reload: PublishRelay<Void>) {
+        let input = HomeViewModel.Input(reload: reload, selectedCategory: selectedCategory, isLatest: isLatest)
         let output = viewModel.transform(input: input)
         
         output.list

@@ -12,7 +12,7 @@ import RxCocoa
 final class HomeViewModel {
     
     struct Input {
-        let callData: BehaviorRelay<Void>
+        let reload: PublishRelay<Void>
         let selectedCategory: BehaviorRelay<[String]>
         let isLatest: BehaviorRelay<Bool>
     }
@@ -30,7 +30,7 @@ final class HomeViewModel {
     func transform(input: Input) -> Output {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         
-        input.callData
+        input.reload
             .bind(with: self) { owenr, _ in
                 NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
                     switch result {
