@@ -51,8 +51,6 @@ class HomeViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     private let viewModel = HomeViewModel()
-    
-    private let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
     let reload = PublishRelay<Void>()
     
     override func viewDidLoad() {
@@ -67,7 +65,7 @@ class HomeViewController: UIViewController {
     }
     
     private func bind(reload: PublishRelay<Void>) {
-        let input = HomeViewModel.Input(reload: reload, selectedCategory: selectedCategory, sortButtonTap: sortButton.rx.tap)
+        let input = HomeViewModel.Input(reload: reload, sortButtonTap: sortButton.rx.tap, categoryTap: categoryCollectionView.rx.itemSelected)
         let output = viewModel.transform(input: input)
         
         output.list
@@ -97,53 +95,18 @@ class HomeViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        viewModel.categories
+        output.allCategories
             .bind(to: categoryCollectionView.rx
                 .items(cellIdentifier: CategoryCollectionViewCell.identifier,cellType: CategoryCollectionViewCell.self)) { index, element, cell in
                     cell.setCategoryName(title: element)
-                    let isSelected = self.selectedCategory.value.contains(element)
+                    let isSelected = output.selectedCategory.value.contains(element)
                     cell.setSelectedUI(isSelected)
                 }
                 .disposed(by: disposeBag)
         
-        
-        categoryCollectionView.rx.itemSelected
-            .map { Category.names[$0.row] }
-            .bind(with: self) { owner, tapped in
-                var current = owner.selectedCategory.value
-                
-                if tapped == "전체" {
-                    current = ["전체"]
-                } else {
-                    current.removeAll { $0 == "전체" }
-                    if current.contains(tapped) {
-                        current.removeAll { $0 == tapped }
-                        if current.isEmpty {
-                            current.append("전체")
-                        }
-                    } else {
-                        current.append(tapped)
-                    }
-                }
-                owner.selectedCategory.accept(current)
+        output.selectedCategory
+            .bind(with: self) { owner, _ in
                 owner.categoryCollectionView.reloadData()
-                owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-            }
-            .disposed(by: disposeBag)
-        
-        classTableView.rx.modelSelected(ClassInfo.self)
-            .bind(with: self) { owner , model in
-                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
-                    switch result {
-                    case .success(let success):
-                        let vc = ClassDetailViewController()
-                        vc.data = success
-                        vc.hidesBottomBarWhenPushed = true
-                        self.navigationController?.pushViewController(vc, animated: true)
-                    case .failure(let failure):
-                        print(failure)
-                    }
-                }
             }
             .disposed(by: disposeBag)
     }

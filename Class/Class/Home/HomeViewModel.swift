@@ -13,16 +13,17 @@ final class HomeViewModel {
     
     struct Input {
         let reload: PublishRelay<Void>
-        let selectedCategory: BehaviorRelay<[String]>
         let sortButtonTap: ControlEvent<Void>
+        let categoryTap: ControlEvent<IndexPath>
     }
     
     struct Output {
         let list: Driver<[ClassInfo]>
         let isLatest: BehaviorRelay<Bool>
+        let selectedCategory: BehaviorRelay<[String]>
+        let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: Category.names)
     }
     
-    let categories = BehaviorRelay<[String]>(value: Category.names)
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
     private let disposeBag = DisposeBag()
     
@@ -31,9 +32,10 @@ final class HomeViewModel {
     func transform(input: Input) -> Output {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         let isLatest = BehaviorRelay<Bool>(value: true)
+        let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
         
         input.reload
-            .withLatestFrom(Observable.combineLatest(input.selectedCategory, isLatest))
+            .withLatestFrom(Observable.combineLatest(selectedCategory, isLatest))
             .bind(with: self) { owner, state in
                 NetworkManager.shared.callRequest(api: .loadClass, type: ClassInfoResponse.self) { result in
                     switch result {
@@ -49,7 +51,7 @@ final class HomeViewModel {
             .disposed(by: disposeBag)
         
         Observable
-            .combineLatest(input.selectedCategory, isLatest)
+            .combineLatest(selectedCategory, isLatest)
             .skip(1)
             .bind(with: self) { owner, state in
                 let processedData = owner.sortAndFilter(data: owner.allList.value, categories: state.0, isLatest: state.1)
@@ -58,14 +60,38 @@ final class HomeViewModel {
             .disposed(by: disposeBag)
         
         input.sortButtonTap
-            .bind(with: self) { owner, _ in
-                let data = owner.sortAndFilter(data: list.value, categories: input.selectedCategory.value, isLatest: isLatest.value)
-                list.accept(data)
-                isLatest.accept(!isLatest.value)
+            .withLatestFrom(isLatest) {_,value in
+                return !value
             }
+            .bind(to: isLatest)
             .disposed(by: disposeBag)
         
-        return Output(list: list.asDriver(), isLatest: isLatest)
+        input.categoryTap
+            .map { Category.names[$0.row] }
+            .withLatestFrom(selectedCategory) { tapped, current in
+                var updated = current
+                
+                if tapped == "전체" {
+                    updated = ["전체"]
+                } else {
+                    updated.removeAll { $0 == "전체" }
+                    
+                    if updated.contains(tapped) {
+                        updated.removeAll { $0 == tapped }
+                        if updated.isEmpty {
+                            updated.append("전체")
+                        }
+                    } else {
+                        updated.append(tapped)
+                    }
+                }
+                
+                return updated
+            }
+            .bind(to: selectedCategory)
+            .disposed(by: disposeBag)
+        
+        return Output(list: list.asDriver(), isLatest: isLatest, selectedCategory: selectedCategory)
     }
     
     private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {
