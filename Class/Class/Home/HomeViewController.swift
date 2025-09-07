@@ -12,7 +12,7 @@ import RxCocoa
 
 class HomeViewController: UIViewController {
     
-    private lazy var categoryCollectionView: UICollectionView = {
+    private let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 2
@@ -42,7 +42,7 @@ class HomeViewController: UIViewController {
         return button
     }()
     
-    private lazy var classTableView: UITableView = {
+    private let classTableView: UITableView = {
         let tableView = UITableView()
         tableView.register(ClassTableViewCell.self, forCellReuseIdentifier: ClassTableViewCell.identifier)
         tableView.separatorInset = .init(top: 0, left: 16, bottom: 0, right: 16)
@@ -51,8 +51,8 @@ class HomeViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     private let viewModel = HomeViewModel()
+    
     private let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
-    private let isLatest = BehaviorRelay<Bool>(value: true)
     let reload = PublishRelay<Void>()
     
     override func viewDidLoad() {
@@ -67,7 +67,7 @@ class HomeViewController: UIViewController {
     }
     
     private func bind(reload: PublishRelay<Void>) {
-        let input = HomeViewModel.Input(reload: reload, selectedCategory: selectedCategory, isLatest: isLatest)
+        let input = HomeViewModel.Input(reload: reload, selectedCategory: selectedCategory, sortButtonTap: sortButton.rx.tap)
         let output = viewModel.transform(input: input)
         
         output.list
@@ -76,24 +76,24 @@ class HomeViewController: UIViewController {
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
             }
-                       .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         output.list
             .drive(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
+                if list.count != 0 {
+                    owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                }
             }
             .disposed(by: disposeBag)
         
-        sortButton.rx.tap
-            .bind(with: self) { owner, _ in
-                if owner.isLatest.value {
-                    owner.isLatest.accept(false)
+        output.isLatest
+            .bind(with: self) { owner, value in
+                if value {
                     owner.sortButton.setTitle("가격순", for: .normal)
                 } else {
-                    owner.isLatest.accept(true)
                     owner.sortButton.setTitle("최신순", for: .normal)
                 }
-                owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -118,6 +118,9 @@ class HomeViewController: UIViewController {
                     current.removeAll { $0 == "전체" }
                     if current.contains(tapped) {
                         current.removeAll { $0 == tapped }
+                        if current.isEmpty {
+                            current.append("전체")
+                        }
                     } else {
                         current.append(tapped)
                     }
