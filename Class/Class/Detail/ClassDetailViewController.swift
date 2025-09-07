@@ -13,6 +13,7 @@ import RxCocoa
 class ClassDetailViewController: UIViewController {
     
     var data: ClassDetailInfo?
+    var liked = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -71,13 +72,7 @@ class ClassDetailViewController: UIViewController {
         return button
     }()
     
-    private let likeButton: UIButton = {
-        let button = UIButton()
-        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .regular)
-        button.setImage(UIImage(systemName: "heart", withConfiguration: config), for: .normal)
-        button.tintColor = .grayC
-        return button
-    }()
+    private let likeButton = UIButton()
     
     private let disposeBag = DisposeBag()
     
@@ -184,5 +179,34 @@ class ClassDetailViewController: UIViewController {
         
         classDescText.text = detailData.description
         
+        liked = detailData.is_liked
+        
+        statusLikeButton(liked)
+        
+        likeButton.rx.tap
+            .bind(with: self) { owner, _ in
+                NetworkManager.shared.callRequest(api: .like(id: detailData.class_id, status: !owner.liked), type: Like.self) { result in
+                    switch result {
+                    case .success(let success):
+                        owner.statusLikeButton(success.like_status)
+                        owner.liked = success.like_status
+                    case .failure(let failure):
+                        print(failure)
+                    }
+                }
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func statusLikeButton(_ isLiked: Bool) {
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        
+        if isLiked {
+            likeButton.setImage(UIImage(systemName: "heart.fill", withConfiguration: config), for: .normal)
+            likeButton.tintColor = .orangeC
+        } else {
+            likeButton.setImage(UIImage(systemName: "heart", withConfiguration: config), for: .normal)
+            likeButton.tintColor = .grayC
+        }
     }
 }
