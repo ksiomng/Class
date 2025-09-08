@@ -11,12 +11,15 @@ import RxCocoa
 
 class CreateCommentViewController: UIViewController {
     
-    var isCreated = true
-    var beforeText: String? = ""
-    var commentId = ""
-    var category = 0
-    var titleClass = ""
-    var id: String = ""
+    var isCreated = false
+    var detailData: ClassDetailInfo?
+    var commentData: Comment?
+    
+    func moveData(isCreated: Bool, detailData: ClassDetailInfo?, commentData: Comment?) {
+        self.isCreated = isCreated
+        self.detailData = detailData
+        self.commentData = commentData
+    }
     
     private let categoryTag = {
         let label = InsetLabel()
@@ -90,8 +93,9 @@ class CreateCommentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard let detailData = detailData else { return }
         setupUI()
-        bind()
+        bind(detailData: detailData)
     }
     
     private func setupUI() {
@@ -139,8 +143,15 @@ class CreateCommentViewController: UIViewController {
         }
     }
     
-    private func bind() {
-        textView.text = beforeText
+    private let viewModel = CreateCommentViewModel()
+    
+    private func bind(detailData: ClassDetailInfo) {
+        let input = CreateCommentViewModel.Input(detailData: detailData, commentData: commentData, isCreated: isCreated, content: textView.rx.text.orEmpty, okButtonTap: okButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        categoryTag.text = Category.categories[detailData.category] ?? ""
+        titleLabel.text = detailData.title
+        textView.text = commentData?.content
         
         backButton.rx.tap
             .bind { _ in
@@ -148,58 +159,36 @@ class CreateCommentViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        categoryTag.text = Category.categories[category] ?? ""
-        titleLabel.text = titleClass
-        
         textView.rx.text.orEmpty
             .bind(with: self) { owner, value in
                 owner.placeholderLabel.isHidden = !value.isEmpty
             }
             .disposed(by: disposeBag)
         
-        textView.rx.text.orEmpty
-            .map { $0.replacingOccurrences(of: " ", with: "") }
-            .bind(with: self) { owner, text in
-                let count = text.count
-                
-                owner.statusComment.text = "\(count)/200"
-                owner.statusComment.textColor = count >= 150 ? .orangeC : .grayC
-                
-                if count >= 2 && count <= 200 {
+        Observable
+            .combineLatest(output.statusColor, output.statusText)
+            .bind(with: self) { owner, value in
+                owner.statusComment.text = value.1
+                owner.statusComment.textColor = value.0
+            }
+            .disposed(by: disposeBag)
+        
+        output.status
+            .bind(with: self) { owner, value in
+                if value {
                     owner.okButton.isEnabled = true
                     owner.okButton.alpha = 1.0
                 } else {
                     owner.okButton.isEnabled = false
                     owner.okButton.alpha = 0.5
                 }
-                
-                if count > 200 {
-                    owner.statusComment.text = "200자 초과"
-                }
             }
             .disposed(by: disposeBag)
         
-        okButton.rx.tap
-            .withLatestFrom(textView.rx.text.orEmpty)
+        output.successWriteComment
             .bind(with: self) { owner, value in
-                if owner.isCreated {
-                    NetworkManager.shared.callRequest(api: .writeComment(id: owner.id, content: value), type: Comment.self) { result in
-                        switch result {
-                        case .success(_):
-                            self.dismiss(animated: true)
-                        case .failure(let failure):
-                            print(failure)
-                        }
-                    }
-                } else {
-                    NetworkManager.shared.callRequest(api: .editComment(id: owner.id, commentId: owner.commentId, content: value), type: Comment.self) { result in
-                        switch result {
-                        case .success(_):
-                            self.dismiss(animated: true)
-                        case .failure(let failure):
-                            print(failure)
-                        }
-                    }
+                if value {
+                    owner.dismiss(animated: true)
                 }
             }
             .disposed(by: disposeBag)

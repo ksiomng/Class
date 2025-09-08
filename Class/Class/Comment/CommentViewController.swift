@@ -29,6 +29,7 @@ class CommentViewController: UIViewController {
     }()
     
     private let disposeBag = DisposeBag()
+    private let viewModel = CommentViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,23 +56,17 @@ class CommentViewController: UIViewController {
     }
     
     private func bind(data: ClassDetailInfo) {
-        let dataRelay = BehaviorRelay<[Comment]>(value: [])
+        let deleteComment = PublishRelay<String>()
+        let input = CommentViewModel.Input(data: self.data!, loadData: self.reload, deleteComment: deleteComment)
+        let output = viewModel.transform(input: input)
         
-        reload
-            .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .comment(id: data.class_id), type: Comments.self) { result in
-                    switch result {
-                    case .success(let success):
-                        dataRelay.accept(success.data)
-                        owner.commentCount?(success.data.count)
-                    case .failure(let failure):
-                        print(failure)
-                    }
-                }
+        output.data
+            .bind(with: self) { owner, value in
+                owner.commentCount?(value.count)
             }
             .disposed(by: disposeBag)
         
-        dataRelay
+        output.data
             .asDriver()
             .drive(tableView.rx
                 .items(cellIdentifier: CommentTableViewCell.identifier,
@@ -79,26 +74,16 @@ class CommentViewController: UIViewController {
                 cell.setupData(row: element)
                 cell.editButtonTap
                     .bind(with: self) { owner, _ in
-                        let alert = UIAlertController(title: nil,
-                                                      message: nil,
-                                                      preferredStyle: .actionSheet)
+                        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                         alert.addAction(UIAlertAction(title: "댓글 수정", style: .default) { _ in
                             let vc = CreateCommentViewController()
-                            vc.isCreated = false
-                            vc.beforeText = element.content
-                            vc.titleClass = data.title
-                            vc.category = data.category
-                            vc.id = data.class_id
-                            vc.commentId = element.comment_id
-                            
+                            vc.moveData(isCreated: false, detailData: data, commentData: element)
                             let nav = UINavigationController(rootViewController: vc)
                             nav.modalPresentationStyle = .fullScreen
                             owner.present(nav, animated: true)
                         })
                         alert.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive) { _ in
-                            NetworkManager.shared.callRequest(api: .deleteComment(id: data.class_id, commentId: element.comment_id), type: EmptyResponse.self) { _ in
-                                owner.reload.accept(())
-                            }
+                            deleteComment.accept(element.comment_id)
                         })
                         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
                         self.present(alert, animated: true)
@@ -111,11 +96,7 @@ class CommentViewController: UIViewController {
         writeButton.rx.tap
             .bind(with: self) { owner, _ in
                 let vc = CreateCommentViewController()
-                vc.isCreated = true
-                vc.titleClass = data.title
-                vc.category = data.category
-                vc.id = data.class_id
-                
+                vc.moveData(isCreated: true, detailData: data, commentData: nil)
                 let nav = UINavigationController(rootViewController: vc)
                 nav.modalPresentationStyle = .fullScreen
                 owner.present(nav, animated: true)
