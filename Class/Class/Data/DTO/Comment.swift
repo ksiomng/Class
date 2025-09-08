@@ -17,3 +17,5 @@ struct Comment: Decodable {
 struct Comments: Decodable {
     let data: [Comment]
 }
+
+struct EmptyResponse: Decodable {}

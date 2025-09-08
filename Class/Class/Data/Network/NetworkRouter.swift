@@ -104,8 +104,7 @@ enum NetworkRouter {
                     "SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
         case .deleteComment(_, _):
-            return ["Content-Type": "application/json",
-                    "SesacKey": "\(APIKey.key)",
+            return ["SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
@@ -150,7 +149,7 @@ enum NetworkRouter {
         case .writeComment(_, _):
             return .post
         case .editComment(_, _, _):
-            return .post
+            return .put
         case .deleteComment(_, _):
             return .delete
         }

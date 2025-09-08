@@ -11,7 +11,9 @@ import RxCocoa
 
 class CreateCommentViewController: UIViewController {
     
-    var titleNavigation = ""
+    var isCreated = true
+    var beforeText: String? = ""
+    var commentId = ""
     var category = 0
     var titleClass = ""
     var id: String = ""
@@ -45,7 +47,7 @@ class CreateCommentViewController: UIViewController {
         return view
     }()
     
-    let textView: UITextView = {
+    lazy var textView: UITextView = {
         let tv = UITextView()
         tv.font = .systemFont(ofSize: 14)
         tv.isScrollEnabled = true
@@ -94,7 +96,7 @@ class CreateCommentViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .white
-        navigationItem.title = titleNavigation
+        navigationItem.title = isCreated ? "댓글 작성" : "댓글 수정"
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: okButton)
         
@@ -138,6 +140,8 @@ class CreateCommentViewController: UIViewController {
     }
     
     private func bind() {
+        textView.text = beforeText
+        
         backButton.rx.tap
             .bind { _ in
                 self.dismiss(animated: true)
@@ -148,10 +152,9 @@ class CreateCommentViewController: UIViewController {
         titleLabel.text = titleClass
         
         textView.rx.text.orEmpty
-            .subscribe(onNext: { [weak self] text in
-                guard let self = self else { return }
-                self.placeholderLabel.isHidden = !text.isEmpty
-            })
+            .bind(with: self) { owner, value in
+                owner.placeholderLabel.isHidden = !value.isEmpty
+            }
             .disposed(by: disposeBag)
         
         textView.rx.text.orEmpty
@@ -179,12 +182,23 @@ class CreateCommentViewController: UIViewController {
         okButton.rx.tap
             .withLatestFrom(textView.rx.text.orEmpty)
             .bind(with: self) { owner, value in
-                NetworkManager.shared.callRequest(api: .writeComment(id: owner.id, content: value), type: Comment.self) { result in
-                    switch result {
-                    case .success(let success):
-                        self.dismiss(animated: true)
-                    case .failure(let failure):
-                        print(failure)
+                if owner.isCreated {
+                    NetworkManager.shared.callRequest(api: .writeComment(id: owner.id, content: value), type: Comment.self) { result in
+                        switch result {
+                        case .success(_):
+                            self.dismiss(animated: true)
+                        case .failure(let failure):
+                            print(failure)
+                        }
+                    }
+                } else {
+                    NetworkManager.shared.callRequest(api: .editComment(id: owner.id, commentId: owner.commentId, content: value), type: Comment.self) { result in
+                        switch result {
+                        case .success(_):
+                            self.dismiss(animated: true)
+                        case .failure(let failure):
+                            print(failure)
+                        }
                     }
                 }
             }

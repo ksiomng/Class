@@ -14,7 +14,6 @@ class CommentViewController: UIViewController {
     var titleNavigation = ""
     var category = 0
     var id = ""
-    var data: [Comment] = []
     let reload = PublishRelay<Void>()
     
     private let tableView: UITableView = {
@@ -56,31 +55,7 @@ class CommentViewController: UIViewController {
     }
     
     private func bind() {
-        let dataRelay = BehaviorRelay<[Comment]>(value: data)
-        
-        dataRelay
-            .asDriver()
-            .drive(tableView.rx
-                .items(cellIdentifier: CommentTableViewCell.identifier,
-                       cellType: CommentTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element)
-                cell.selectionStyle = .none
-            }
-                       .disposed(by: disposeBag)
-        
-        writeButton.rx.tap
-            .bind(with: self) { owner, _ in
-                let vc = CreateCommentViewController()
-                vc.titleNavigation = "댓글 작성"
-                vc.titleClass = owner.titleNavigation
-                vc.category = owner.category
-                vc.id = owner.id
-                
-                let nav = UINavigationController(rootViewController: vc)
-                nav.modalPresentationStyle = .fullScreen
-                owner.present(nav, animated: true)
-            }
-            .disposed(by: disposeBag)
+        let dataRelay = BehaviorRelay<[Comment]>(value: [])
         
         reload
             .bind(with: self) { owner, _ in
@@ -92,6 +67,57 @@ class CommentViewController: UIViewController {
                         print(failure)
                     }
                 }
+            }
+            .disposed(by: disposeBag)
+        
+        dataRelay
+            .asDriver()
+            .drive(tableView.rx
+                .items(cellIdentifier: CommentTableViewCell.identifier,
+                       cellType: CommentTableViewCell.self)) { (row, element, cell) in
+                cell.setupData(row: element)
+                cell.editButtonTap
+                    .bind(with: self) { owner, _ in
+                        let alert = UIAlertController(title: nil,
+                                                      message: nil,
+                                                      preferredStyle: .actionSheet)
+                        alert.addAction(UIAlertAction(title: "댓글 수정", style: .default) { _ in
+                            let vc = CreateCommentViewController()
+                            vc.isCreated = false
+                            vc.beforeText = element.content
+                            vc.titleClass = owner.titleNavigation
+                            vc.category = owner.category
+                            vc.id = owner.id
+                            vc.commentId = element.comment_id
+                            
+                            let nav = UINavigationController(rootViewController: vc)
+                            nav.modalPresentationStyle = .fullScreen
+                            owner.present(nav, animated: true)
+                        })
+                        alert.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive) { _ in
+                            NetworkManager.shared.callRequest(api: .deleteComment(id: owner.id, commentId: element.comment_id), type: EmptyResponse.self) { _ in
+                                owner.reload.accept(())
+                            }
+                        })
+                        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+                        self.present(alert, animated: true)
+                    }
+                    .disposed(by: cell.disposeBag)
+                cell.selectionStyle = .none
+            }
+                       .disposed(by: disposeBag)
+        
+        writeButton.rx.tap
+            .bind(with: self) { owner, _ in
+                let vc = CreateCommentViewController()
+                vc.isCreated = true
+                vc.titleClass = owner.titleNavigation
+                vc.category = owner.category
+                vc.id = owner.id
+                
+                let nav = UINavigationController(rootViewController: vc)
+                nav.modalPresentationStyle = .fullScreen
+                owner.present(nav, animated: true)
             }
             .disposed(by: disposeBag)
     }
