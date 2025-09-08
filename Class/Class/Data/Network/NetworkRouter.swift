@@ -14,6 +14,10 @@ enum NetworkRouter {
     case like(id: String, status: Bool)
     case seasrch(keyword: String)
     case detail(id: String)
+    case comment(id: String)
+    case writeComment(id: String, content: String)
+    case editComment(id: String, commentId: String, content: String)
+    case deleteComment(id: String, commentId: String)
     
     var baseURL: String {
         APIURL.baseURL
@@ -31,6 +35,14 @@ enum NetworkRouter {
             return URL(string: "\(baseURL)\(APIURL.searchURL)")!
         case .detail(let id):
             return URL(string: "\(baseURL)\(APIURL.detailURL(id: id))")!
+        case .comment(let id):
+            return URL(string: "\(baseURL)\(APIURL.commnet(id: id))")!
+        case .writeComment(let id, _):
+            return URL(string: "\(baseURL)\(APIURL.commnet(id: id))")!
+        case .editComment(let id, let commentId, _):
+            return URL(string: "\(baseURL)\(APIURL.editComment(id: id, commentId: commentId))")!
+        case .deleteComment(let id, let commentId):
+            return URL(string: "\(baseURL)\(APIURL.editComment(id: id, commentId: commentId))")!
         }
     }
     
@@ -46,6 +58,14 @@ enum NetworkRouter {
         case .seasrch(let keyword):
             return ["title": keyword]
         case .detail(_):
+            return nil
+        case .comment(_):
+            return nil
+        case .writeComment(_, let content):
+            return ["content": content]
+        case .editComment(_, _, let content):
+            return ["content": content]
+        case .deleteComment(_, _):
             return nil
         }
     }
@@ -71,6 +91,22 @@ enum NetworkRouter {
             return ["Content-Type": "application/json",
                     "SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
+        case .comment(_):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
+        case .writeComment(_, _):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
+        case .editComment(_, _, _):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
+        case .deleteComment(_, _):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
     
@@ -85,6 +121,14 @@ enum NetworkRouter {
         case .seasrch(_):
             return URLEncoding.default
         case .detail(_):
+            return URLEncoding.default
+        case .comment(_):
+            return URLEncoding.default
+        case .writeComment(_, _):
+            return JSONEncoding.default
+        case .editComment(_, _, _):
+            return JSONEncoding.default
+        case .deleteComment(_, _):
             return URLEncoding.default
         }
     }
@@ -101,6 +145,14 @@ enum NetworkRouter {
             return .get
         case .detail(_):
             return .get
+        case .comment(_):
+            return .get
+        case .writeComment(_, _):
+            return .post
+        case .editComment(_, _, _):
+            return .post
+        case .deleteComment(_, _):
+            return .delete
         }
     }
 }
