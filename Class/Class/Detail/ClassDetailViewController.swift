@@ -145,6 +145,7 @@ class ClassDetailViewController: UIViewController {
     
     private func bind() {
         guard let detailData = data else { return }
+        var commentData: [Comment] = []
         
         BehaviorSubject(value: detailData.image_urls)
             .bind(to: collectionView.rx
@@ -194,6 +195,27 @@ class ClassDetailViewController: UIViewController {
                         print(failure)
                     }
                 }
+            }
+            .disposed(by: disposeBag)
+        
+        NetworkManager.shared.callRequest(api: .comment(id: detailData.class_id), type: Comments.self) { result in
+            switch result {
+            case .success(let success):
+                self.commentButton.setTitle("댓글보기 (\(success.data.count))", for: .normal)
+                self.commentButton.backgroundColor = success.data.isEmpty ? .grayC : .orangeC
+                self.commentButton.isEnabled = !success.data.isEmpty
+                commentData = success.data
+            case .failure(let failure):
+                print(failure)
+            }
+        }
+        
+        commentButton.rx.tap
+            .bind { _ in
+                let vc = CommentViewController()
+                vc.titleNavigation = detailData.title
+                vc.data = commentData
+                self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
