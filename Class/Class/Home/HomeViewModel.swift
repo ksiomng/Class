@@ -22,7 +22,7 @@ final class HomeViewModel {
         let list: BehaviorRelay<[ClassInfo]>
         let isLatest: BehaviorRelay<Bool>
         let selectedCategory: BehaviorRelay<[String]>
-        let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: Category.names)
+        let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: CategoryHelper.names)
         let moveDetail: BehaviorRelay<ClassDetailInfo?>
     }
     
@@ -70,7 +70,7 @@ final class HomeViewModel {
             .disposed(by: disposeBag)
         
         input.categoryTap
-            .map { Category.names[$0.row] }
+            .map { CategoryHelper.names[$0.row] }
             .withLatestFrom(selectedCategory) { tapped, current in
                 var updated = current
                 
@@ -140,7 +140,7 @@ final class HomeViewModel {
         if categories.contains("전체") {
             result = data
         } else {
-            result = data.filter { categories.contains(Category.categories[$0.category]!) }
+            result = data.filter { categories.contains(CategoryHelper.categories[$0.category]!) }
         }
         return result
     }

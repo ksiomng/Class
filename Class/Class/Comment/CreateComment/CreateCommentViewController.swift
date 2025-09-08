@@ -9,17 +9,11 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class CreateCommentViewController: UIViewController {
+final class CreateCommentViewController: UIViewController {
     
-    var isCreated = false
-    var detailData: ClassDetailInfo?
-    var commentData: Comment?
-    
-    func moveData(isCreated: Bool, detailData: ClassDetailInfo?, commentData: Comment?) {
-        self.isCreated = isCreated
-        self.detailData = detailData
-        self.commentData = commentData
-    }
+    private var isCreated = false
+    private var detailData: ClassDetailInfo?
+    private var commentData: Comment?
     
     private let categoryTag = {
         let label = InsetLabel()
@@ -35,13 +29,13 @@ class CreateCommentViewController: UIViewController {
         return label
     }()
     
-    let titleLabel = {
+    private let titleLabel = {
         let label = UILabel()
         label.font = .largeBoldFont
         return label
     }()
     
-    let textViewBackground = {
+    private let textViewBackground = {
         let view = UIView()
         view.clipsToBounds = true
         view.layer.cornerRadius = 12
@@ -50,7 +44,7 @@ class CreateCommentViewController: UIViewController {
         return view
     }()
     
-    lazy var textView: UITextView = {
+    private let textView: UITextView = {
         let tv = UITextView()
         tv.font = .systemFont(ofSize: 14)
         tv.isScrollEnabled = true
@@ -59,7 +53,7 @@ class CreateCommentViewController: UIViewController {
         return tv
     }()
     
-    let placeholderLabel: UILabel = {
+    private let placeholderLabel: UILabel = {
         let label = UILabel()
         label.text = "댓글을 작성해주세요."
         label.textColor = .lightGrayC
@@ -67,27 +61,33 @@ class CreateCommentViewController: UIViewController {
         return label
     }()
     
-    let statusComment = {
+    private let statusComment = {
         let label = UILabel()
         label.font = .mediumBoldFont
         label.textColor = .grayC
         return label
     }()
     
-    let backButton = {
+    private let backButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "xmark"), for: .normal)
         button.tintColor = .black
         return button
     }()
     
-    let okButton = {
+    private let okButton = {
         let button = UIButton()
         button.setTitle("확인", for: .normal)
         button.titleLabel?.font = .largeBoldFont
         button.setTitleColor(.black, for: .normal)
         return button
     }()
+    
+    func moveData(isCreated: Bool, detailData: ClassDetailInfo?, commentData: Comment?) {
+        self.isCreated = isCreated
+        self.detailData = detailData
+        self.commentData = commentData
+    }
     
     private let disposeBag = DisposeBag()
     
@@ -149,7 +149,7 @@ class CreateCommentViewController: UIViewController {
         let input = CreateCommentViewModel.Input(detailData: detailData, commentData: commentData, isCreated: isCreated, content: textView.rx.text.orEmpty, okButtonTap: okButton.rx.tap)
         let output = viewModel.transform(input: input)
         
-        categoryTag.text = Category.categories[detailData.category] ?? ""
+        categoryTag.text = CategoryHelper.categories[detailData.category] ?? ""
         titleLabel.text = detailData.title
         textView.text = commentData?.content
         

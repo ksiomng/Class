@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import RxSwift
 
-class SearchClassTableViewCell: UITableViewCell {
+final class SearchClassTableViewCell: UITableViewCell {
     
     private let classImageView = {
         let imageView = UIImageView()
@@ -83,8 +83,8 @@ class SearchClassTableViewCell: UITableViewCell {
         return label
     }()
     
-    let viewModel = SearchClassTableViewCellModel()
-    var disposeBag = DisposeBag()
+    private let viewModel = SearchClassTableViewCellModel()
+    private var disposeBag = DisposeBag()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -136,7 +136,7 @@ class SearchClassTableViewCell: UITableViewCell {
     }
     
     func setupData(row: ClassInfo) {
-        let input = SearchClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked)
+        let input = SearchClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked, className: row.title)
         let output = viewModel.transform(input: input)
         
         output.image
@@ -148,16 +148,22 @@ class SearchClassTableViewCell: UITableViewCell {
         output.isLiked
             .asDriver()
             .drive(with: self) { owner, value in
-                owner.statusLikeButton(isLiked: value)
+                owner.statusLikeButton(isLiked: value, className: row.title)
+            }
+            .disposed(by: disposeBag)
+        
+        output.toastMsg
+            .bind(with: self) { owner, value in
+                UIViewController.show(message: value)
             }
             .disposed(by: disposeBag)
         
         classTitleLabel.text = row.title
-        categoryTag.text = Category.categories[row.category]
+        categoryTag.text = CategoryHelper.categories[row.category]
         PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
     }
     
-    private func statusLikeButton(isLiked: Bool) {
+    private func statusLikeButton(isLiked: Bool, className: String) {
         if isLiked {
             likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
             likeButton.tintColor = .orangeC

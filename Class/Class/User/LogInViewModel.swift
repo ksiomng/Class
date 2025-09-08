@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class LogInViewModel {
+final class LogInViewModel {
     
     struct Input {
         let emailTextField: ControlProperty<String>
@@ -23,9 +23,9 @@ class LogInViewModel {
         let login: PublishRelay<Bool>
     }
     
-    private let disposeBag = DisposeBag()
-    
     init() { }
+    
+    private let disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
         let statusBool = BehaviorRelay(value: false)
@@ -54,21 +54,21 @@ class LogInViewModel {
             .disposed(by: disposeBag)
         
         input.loginButtonTap
-                    .withLatestFrom(
-                        Observable.combineLatest(input.emailTextField, input.passwordTextField))
-                    .bind { email, password in
-                        NetworkManager.shared.callRequest(api: .login(email: email, password: password), type: Login.self) { result in
-                            switch result {
-                            case .success(let login):
-                                UserDefaultsHelper.shared.token = login.accessToken
-                                UserDefaultsHelper.shared.userId = login.user_id
-                                loginSubject.accept(true)
-                            case .failure(_):
-                                loginSubject.accept(false)
-                            }
-                        }
+            .withLatestFrom(
+                Observable.combineLatest(input.emailTextField, input.passwordTextField))
+            .bind { email, password in
+                NetworkManager.shared.callRequest(api: .login(email: email, password: password), type: Login.self) { result in
+                    switch result {
+                    case .success(let login):
+                        UserDefaultsHelper.shared.token = login.accessToken
+                        UserDefaultsHelper.shared.userId = login.user_id
+                        loginSubject.accept(true)
+                    case .failure(_):
+                        loginSubject.accept(false)
                     }
-                    .disposed(by: disposeBag)
+                }
+            }
+            .disposed(by: disposeBag)
         
         return Output(enabledButton: statusBool, statusString: statusString, login: loginSubject)
     }

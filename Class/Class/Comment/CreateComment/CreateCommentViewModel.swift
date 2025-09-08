@@ -11,6 +11,7 @@ import RxSwift
 import RxCocoa
 
 final class CreateCommentViewModel {
+    
     struct Input {
         let detailData: ClassDetailInfo
         let commentData: Comment?

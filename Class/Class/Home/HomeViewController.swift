@@ -10,7 +10,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-class HomeViewController: UIViewController {
+final class HomeViewController: UIViewController {
     
     private let categoryCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -35,7 +35,6 @@ class HomeViewController: UIViewController {
     private let sortButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = .mediumBoldFont
-        button.setTitle("최신순", for: .normal)
         button.setImage(UIImage(systemName: "line.3.horizontal.decrease"), for: .normal)
         button.tintColor = .orangeC
         button.setTitleColor(.orangeC, for: .normal)
@@ -49,9 +48,9 @@ class HomeViewController: UIViewController {
         return tableView
     }()
     
-    let disposeBag = DisposeBag()
+    private let reload = PublishRelay<Void>()
+    private let disposeBag = DisposeBag()
     private let viewModel = HomeViewModel()
-    let reload = PublishRelay<Void>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,67 +63,9 @@ class HomeViewController: UIViewController {
         reload.accept(())
     }
     
-    private func bind(reload: PublishRelay<Void>) {
-        let input = HomeViewModel.Input(reload: reload, sortButtonTap: sortButton.rx.tap, categoryTap: categoryCollectionView.rx.itemSelected, moveDetailTap: classTableView.rx.modelSelected(ClassInfo.self))
-        let output = viewModel.transform(input: input)
-        
-        output.list
-            .asDriver()
-            .drive(classTableView.rx
-                .items(cellIdentifier: ClassTableViewCell.identifier,
-                       cellType: ClassTableViewCell.self)) { (row, element, cell) in
-                cell.setupData(row: element)
-                cell.selectionStyle = .none
-            }
-            .disposed(by: disposeBag)
-        
-        output.list
-            .asDriver()
-            .drive(with: self) { owner, list in
-                owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
-            }
-            .disposed(by: disposeBag)
-        
-        output.isLatest
-            .asDriver()
-            .drive(with: self) { owner, value in
-                if value {
-                    owner.sortButton.setTitle("가격순", for: .normal)
-                } else {
-                    owner.sortButton.setTitle("최신순", for: .normal)
-                }
-            }
-            .disposed(by: disposeBag)
-        
-        output.allCategories
-            .bind(to: categoryCollectionView.rx
-                .items(cellIdentifier: CategoryCollectionViewCell.identifier,cellType: CategoryCollectionViewCell.self)) { index, element, cell in
-                    cell.setCategoryName(title: element)
-                    let isSelected = output.selectedCategory.value.contains(element)
-                    cell.setSelectedUI(isSelected)
-                }
-                .disposed(by: disposeBag)
-        
-        output.selectedCategory
-            .bind(with: self) { owner, _ in
-                owner.categoryCollectionView.reloadData()
-            }
-            .disposed(by: disposeBag)
-        
-        output.moveDetail
-            .skip(1)
-            .bind { value in
-                let vc = ClassDetailViewController()
-                vc.data = value
-                vc.hidesBottomBarWhenPushed = true
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-            .disposed(by: disposeBag)
-    }
-    
     private func setupUI() {
         view.backgroundColor = .white
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: setLeftNavigationTitle(title: "클래스 조회"))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: UIViewController.setLeftNavigationTitle(title: "클래스 조회"))
         
         view.addSubview(categoryCollectionView)
         categoryCollectionView.snp.makeConstraints { make in
@@ -150,5 +91,63 @@ class HomeViewController: UIViewController {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+    }
+    
+    private func bind(reload: PublishRelay<Void>) {
+        let input = HomeViewModel.Input(reload: reload, sortButtonTap: sortButton.rx.tap, categoryTap: categoryCollectionView.rx.itemSelected, moveDetailTap: classTableView.rx.modelSelected(ClassInfo.self))
+        let output = viewModel.transform(input: input)
+        
+        output.list
+            .asDriver()
+            .drive(classTableView.rx
+                .items(cellIdentifier: ClassTableViewCell.identifier,
+                       cellType: ClassTableViewCell.self)) { (row, element, cell) in
+                cell.setupData(row: element)
+                cell.selectionStyle = .none
+            }
+                       .disposed(by: disposeBag)
+        
+        output.list
+            .asDriver()
+            .drive(with: self) { owner, list in
+                owner.totalCountLabel.text = StringFormatterHelper.formatWithComma(list.count) + "개"
+            }
+            .disposed(by: disposeBag)
+        
+        output.isLatest
+            .asDriver()
+            .drive(with: self) { owner, value in
+                if value {
+                    owner.sortButton.setTitle("최신순", for: .normal)
+                } else {
+                    owner.sortButton.setTitle("가격순", for: .normal)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        output.allCategories
+            .bind(to: categoryCollectionView.rx
+                .items(cellIdentifier: CategoryCollectionViewCell.identifier,cellType: CategoryCollectionViewCell.self)) { index, element, cell in
+                    cell.setCategoryName(title: element)
+                    let isSelected = output.selectedCategory.value.contains(element)
+                    cell.setSelectedUI(isSelected)
+                }
+                .disposed(by: disposeBag)
+        
+        output.selectedCategory
+            .bind(with: self) { owner, _ in
+                owner.categoryCollectionView.reloadData()
+            }
+            .disposed(by: disposeBag)
+        
+        output.moveDetail
+            .skip(1)
+            .bind { value in
+                let vc = ClassDetailViewController()
+                vc.setData(data: value)
+                vc.hidesBottomBarWhenPushed = true
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
 }

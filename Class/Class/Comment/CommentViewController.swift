@@ -9,10 +9,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class CommentViewController: UIViewController {
+final class CommentViewController: UIViewController {
     
-    var data: ClassDetailInfo?
-    let reload = PublishRelay<Void>()
+    private var data: ClassDetailInfo?
     var commentCount: ((Int) -> Void)?
     
     private let tableView: UITableView = {
@@ -28,6 +27,11 @@ class CommentViewController: UIViewController {
         return button
     }()
     
+    func setData(data: ClassDetailInfo?) {
+        self.data = data
+    }
+    
+    private let reload = PublishRelay<Void>()
     private let disposeBag = DisposeBag()
     private let viewModel = CommentViewModel()
     

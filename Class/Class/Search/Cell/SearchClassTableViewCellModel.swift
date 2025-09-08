@@ -16,18 +16,23 @@ final class SearchClassTableViewCellModel {
         let likeButtonTap: ControlEvent<Void>
         let id: String
         let liked: Bool
+        let className: String
     }
     
     struct Output {
         let image: Driver<UIImage>
         let isLiked: BehaviorRelay<Bool>
+        let toastMsg: PublishRelay<String>
     }
+    
+    init() { }
     
     let disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
         let image = BehaviorRelay<UIImage>(value: UIImage())
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
+        let toastMsg = PublishRelay<String>()
         
         NetworkManager.shared.callImage(imagePath: input.imagePath) { result in
             switch result {
@@ -44,6 +49,11 @@ final class SearchClassTableViewCellModel {
                     switch result {
                     case .success(let success):
                         isLiked.accept(success.like_status)
+                        if success.like_status {
+                            toastMsg.accept("[\(input.className)] 클래스를 찜했습니다.")
+                        } else {
+                            toastMsg.accept("[\(input.className)] 클래스 찜을 취소했습니다.")
+                        }
                     case .failure(let failure):
                         print(failure)
                     }
@@ -51,6 +61,6 @@ final class SearchClassTableViewCellModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(image: image.asDriver(), isLiked: isLiked)
+        return Output(image: image.asDriver(), isLiked: isLiked, toastMsg: toastMsg)
     }
 }

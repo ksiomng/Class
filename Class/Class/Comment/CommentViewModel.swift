@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 
 final class CommentViewModel {
+    
     struct Input {
         let data: ClassDetailInfo
         let loadData: PublishRelay<Void>

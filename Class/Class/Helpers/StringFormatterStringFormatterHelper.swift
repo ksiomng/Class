@@ -1,5 +1,5 @@
 //
-//  StringFormatter.swift
+//  StringFormatterHelper.swift
 //  Class
 //
 //  Created by Song Kim on 9/6/25.
@@ -7,7 +7,8 @@
 
 import UIKit
 
-final class StringFormatter {
+final class StringFormatterHelper {
+    
     private init() { }
     
     static func formatWithComma(_ number: Int) -> String {
@@ -51,5 +52,21 @@ final class StringFormatter {
                 .replacingOccurrences(of: "AM", with: "오전")
                 .replacingOccurrences(of: "PM", with: "오후")
         }
+    }
+    
+    static func formatInfoDate(str: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        guard let date = formatter.date(from: str) else {
+            return ""
+        }
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.dateFormat = "yy년 M월 d일 a h시 m분"
+        
+        return displayFormatter.string(from: date)
+            .replacingOccurrences(of: "AM", with: "오전")
+            .replacingOccurrences(of: "PM", with: "오후")
     }
 }

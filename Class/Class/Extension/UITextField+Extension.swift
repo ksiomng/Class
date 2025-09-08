@@ -8,6 +8,7 @@
 import UIKit
 
 extension UITextField {
+    
     static func loginStyle(placeholder: String) -> UITextField {
         let textField = UITextField()
         textField.clipsToBounds = true

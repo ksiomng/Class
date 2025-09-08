@@ -16,7 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let standard = UINavigationBarAppearance()
         standard.configureWithTransparentBackground()
         standard.backgroundColor = .clear
-        
         standard.backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
         
         UINavigationBar.appearance().scrollEdgeAppearance = standard

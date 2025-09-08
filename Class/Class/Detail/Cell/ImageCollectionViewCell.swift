@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class ImageCollectionViewCell: UICollectionViewCell {
+final class ImageCollectionViewCell: UICollectionViewCell {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -19,6 +19,10 @@ class ImageCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+    }
+    
+    private func setupUI() {
         contentView.addSubview(imageView)
         
         imageView.snp.makeConstraints { make in

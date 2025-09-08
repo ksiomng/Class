@@ -7,9 +7,9 @@
 
 import UIKit
 
-class InfoView: UIView {
+final class InfoView: UIView {
     
-    let locationTitle = {
+    private let locationTitle = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
@@ -17,21 +17,21 @@ class InfoView: UIView {
         return label
     }()
     
-    let locationImage = {
+    private let locationImage = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "location.fill")
         imageView.tintColor = .orangeC
         return imageView
     }()
     
-    let locationInfo = {
+    private let locationInfo = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
         return label
     }()
     
-    let dateTitle = {
+    private let dateTitle = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
@@ -39,21 +39,21 @@ class InfoView: UIView {
         return label
     }()
     
-    let dateImage = {
+    private let dateImage = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "clock.fill")
         imageView.tintColor = .orangeC
         return imageView
     }()
     
-    let dateInfo = {
+    private let dateInfo = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
         return label
     }()
     
-    let capacityTitle = {
+    private let capacityTitle = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
@@ -61,14 +61,14 @@ class InfoView: UIView {
         return label
     }()
     
-    let capacityImage = {
+    private let capacityImage = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "person.fill")
         imageView.tintColor = .orangeC
         return imageView
     }()
     
-    let capacityInfo = {
+    private let capacityInfo = {
         let label = UILabel()
         label.font = .smallFont
         label.textColor = .grayC
@@ -126,11 +126,6 @@ class InfoView: UIView {
         }
     }
     
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     func setData(location: String?, date: String?, capacity: Int?) {
         if let loc = location {
             self.locationInfo.text = loc
@@ -138,14 +133,19 @@ class InfoView: UIView {
             self.locationInfo.text = "미정"
         }
         if let date = date {
-            self.dateInfo.text = date
+            self.dateInfo.text = StringFormatterHelper.formatInfoDate(str: date)
         } else {
             self.dateInfo.text = "미정"
         }
         if let cap = capacity {
-            self.capacityInfo.text = "\(StringFormatter.formatWithComma(cap))명"
+            self.capacityInfo.text = "\(StringFormatterHelper.formatWithComma(cap))명"
         } else {
             self.capacityInfo.text = "미정"
         }
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

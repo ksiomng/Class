@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class CategoryCollectionViewCell: UICollectionViewCell {
+final class CategoryCollectionViewCell: UICollectionViewCell {
     
     private let labelBackgroundView = {
         let view = UIView()
@@ -45,11 +45,6 @@ class CategoryCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     func setCategoryName(title: String) {
         categoryLabel.text = title
     }
@@ -62,5 +57,10 @@ class CategoryCollectionViewCell: UICollectionViewCell {
             labelBackgroundView.layer.borderColor = UIColor.lightGrayC.cgColor
             categoryLabel.textColor = .lightGrayC
         }
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

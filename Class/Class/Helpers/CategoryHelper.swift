@@ -1,11 +1,11 @@
 //
-//  Category.swift
+//  CategoryHelper.swift
 //  Class
 //
 //  Created by Song Kim on 9/5/25.
 //
 
-final class Category {
+final class CategoryHelper {
     private init() { }
     
     static let categories = [ 101: "개발",

@@ -10,9 +10,9 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-class ClassDetailViewController: UIViewController {
+final class ClassDetailViewController: UIViewController {
     
-    var data: ClassDetailInfo?
+    private var data: ClassDetailInfo?
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -73,12 +73,17 @@ class ClassDetailViewController: UIViewController {
     
     private let likeButton = UIButton()
     
+    func setData(data: ClassDetailInfo?) {
+        self.data = data
+    }
+    
     private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard let detailData = data else { return }
         setupUI()
-        bind()
+        bind(detailData: detailData)
     }
     
     private func setupUI() {
@@ -144,9 +149,13 @@ class ClassDetailViewController: UIViewController {
     
     let viewModel = ClassDetailViewModel()
     
-    private func bind() {
-        guard let detailData = data else { return }
+    private func bind(detailData: ClassDetailInfo) {
         var liked = detailData.is_liked
+        
+        userName.text = detailData.creator.nick
+        infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
+        classDescText.text = detailData.description
+        statusLikeButton(detailData.is_liked)
         
         let input = ClassDetailViewModel.Input(detailsData: BehaviorRelay(value: detailData), likeButtonTap: likeButton.rx.tap, liked: liked)
         let output = viewModel.transform(input: input)
@@ -184,19 +193,10 @@ class ClassDetailViewController: UIViewController {
                 vc.commentCount = { value in
                     self.setCommentButton(value)
                 }
-                vc.data = detailData
+                vc.setData(data: detailData)
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
-        
-        setupUIData(detailData)
-    }
-    
-    private func setupUIData(_ data: ClassDetailInfo) {
-        userName.text = data.creator.nick
-        infoView.setData(location: data.location, date: data.date, capacity: data.capacity)
-        classDescText.text = data.description
-        statusLikeButton(data.is_liked)
     }
     
     private func setCommentButton(_ count: Int) {

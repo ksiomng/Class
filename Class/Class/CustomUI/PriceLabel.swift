@@ -13,10 +13,10 @@ final class PriceLabel {
     
     static func priceCalculateSale(price: Int?, salePrice: Int?, priceLabel: UILabel, saleLabel: UILabel, persentLabel: UILabel) {
         if let price = price {
-            priceLabel.text = StringFormatter.formatWithComma(price) + "원"
+            priceLabel.text = StringFormatterHelper.formatWithComma(price) + "원"
             if let salePrice = salePrice {
                 let attributeString = NSAttributedString(
-                    string: StringFormatter.formatWithComma(price) + "원",
+                    string: StringFormatterHelper.formatWithComma(price) + "원",
                     attributes: [
                         .strikethroughStyle: NSUnderlineStyle.single.rawValue,
                         .foregroundColor: UIColor.lightGray
@@ -26,10 +26,10 @@ final class PriceLabel {
                 
                 saleLabel.isHidden = false
                 persentLabel.isHidden = false
-                saleLabel.text = StringFormatter.formatWithComma(salePrice) + "원"
-                persentLabel.text = StringFormatter.calculate(price: price, sale: salePrice)
+                saleLabel.text = StringFormatterHelper.formatWithComma(salePrice) + "원"
+                persentLabel.text = StringFormatterHelper.calculate(price: price, sale: salePrice)
             } else {
-                priceLabel.text = StringFormatter.formatWithComma(price) + "원"
+                priceLabel.text = StringFormatterHelper.formatWithComma(price) + "원"
                 saleLabel.isHidden = true
                 persentLabel.isHidden = true
             }

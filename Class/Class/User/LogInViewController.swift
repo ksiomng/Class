@@ -10,7 +10,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 
-class LogInViewController: UIViewController {
+final class LogInViewController: UIViewController {
     
     private let imageView = {
         let imageView = UIImageView()
@@ -67,40 +67,6 @@ class LogInViewController: UIViewController {
         bind()
     }
     
-    private func bind() {
-        let input = LogInViewModel.Input(emailTextField: emailTextField.rx.text.orEmpty, passwordTextField: passwordTextField.rx.text.orEmpty, loginButtonTap: loginButton.rx.tap)
-        let output = viewModel.transform(input: input)
-        
-        output.statusString
-            .asDriver()
-            .drive { [weak self] value in
-                self?.statusLabel.text = value
-            }
-            .disposed(by: disposeBag)
-        
-        output.enabledButton
-            .asDriver()
-            .drive { [weak self] value in
-                if value {
-                    self?.loginButton.backgroundColor = .lightOrangeC
-                } else {
-                    self?.loginButton.backgroundColor = .lightGrayC
-                }
-                self?.loginButton.isEnabled = value
-            }
-            .disposed(by: disposeBag)
-        
-        output.login
-            .bind(with: self) { owner, value in
-                if value {
-                    owner.view.window?.rootViewController = RootViewControllerManager.getRootViewController()
-                } else {
-                    // TODO: 에러처리
-                }
-            }
-            .disposed(by: disposeBag)
-    }
-    
     private func setupUI() {
         view.addSubview(imageView)
         view.addSubview(emailLabel)
@@ -147,5 +113,39 @@ class LogInViewController: UIViewController {
             make.top.equalTo(loginButton.snp.bottom).offset(16)
             make.horizontalEdges.equalToSuperview().inset(28)
         }
+    }
+    
+    private func bind() {
+        let input = LogInViewModel.Input(emailTextField: emailTextField.rx.text.orEmpty, passwordTextField: passwordTextField.rx.text.orEmpty, loginButtonTap: loginButton.rx.tap)
+        let output = viewModel.transform(input: input)
+        
+        output.statusString
+            .asDriver()
+            .drive { [weak self] value in
+                self?.statusLabel.text = value
+            }
+            .disposed(by: disposeBag)
+        
+        output.enabledButton
+            .asDriver()
+            .drive { [weak self] value in
+                if value {
+                    self?.loginButton.backgroundColor = .lightOrangeC
+                } else {
+                    self?.loginButton.backgroundColor = .lightGrayC
+                }
+                self?.loginButton.isEnabled = value
+            }
+            .disposed(by: disposeBag)
+        
+        output.login
+            .bind(with: self) { owner, value in
+                if value {
+                    owner.view.window?.rootViewController = RootViewControllerManager.getRootViewController()
+                } else {
+                    // TODO: 에러처리
+                }
+            }
+            .disposed(by: disposeBag)
     }
 }

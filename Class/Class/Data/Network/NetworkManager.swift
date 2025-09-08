@@ -30,8 +30,7 @@ final class NetworkManager {
         }
     }
     
-    func callImage(imagePath: String,
-                   handler: @escaping (Result<UIImage, Error>) -> Void) {
+    func callImage(imagePath: String, handler: @escaping (Result<UIImage, Error>) -> Void) {
         
         let imageURL = URL(string: "\(APIURL.baseURL)/v1\(imagePath)")!
         

@@ -8,6 +8,7 @@
 import UIKit
 
 final class RootViewControllerManager {
+    
     private init() { }
     
     static func getRootViewController() -> UIViewController {

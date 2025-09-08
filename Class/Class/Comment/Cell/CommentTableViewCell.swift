@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class CommentTableViewCell: UITableViewCell {
+final class CommentTableViewCell: UITableViewCell {
     let editButtonTap = PublishRelay<Void>()
     
     private let profileImageView = {
@@ -109,7 +109,7 @@ class CommentTableViewCell: UITableViewCell {
             profileImageView.image = UIImage(systemName: "person.fill")
         }
         nameLabel.text = row.creator.nick
-        timeLabel.text = StringFormatter.formatCommentDate(str: row.created_at)
+        timeLabel.text = StringFormatterHelper.formatCommentDate(str: row.created_at)
         contentLabel.text = row.content
         
         if UserDefaultsHelper.shared.userId == row.creator.user_id {

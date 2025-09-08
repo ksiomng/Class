@@ -10,6 +10,7 @@ import RxSwift
 import RxCocoa
 
 final class ClassDetailViewModel {
+    
     struct Input {
         let detailsData: BehaviorRelay<ClassDetailInfo>
         let likeButtonTap: ControlEvent<Void>

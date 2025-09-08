@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class ClassTableViewCell: UITableViewCell {
+final class ClassTableViewCell: UITableViewCell {
     
     private let classImageView = {
         let imageView = UIImageView()
@@ -80,8 +80,8 @@ class ClassTableViewCell: UITableViewCell {
         return label
     }()
     
-    let viewModel = ClassTableViewCellModel()
-    var disposeBag = DisposeBag()
+    private let viewModel = ClassTableViewCellModel()
+    private var disposeBag = DisposeBag()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -149,7 +149,7 @@ class ClassTableViewCell: UITableViewCell {
     }
     
     func setupData(row: ClassInfo) {
-        let input = ClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked)
+        let input = ClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked, className: row.title)
         let output = viewModel.transform(input: input)
         
         output.image
@@ -166,9 +166,15 @@ class ClassTableViewCell: UITableViewCell {
             }
             .disposed(by: disposeBag)
         
+        output.toastMsg
+            .bind(with: self) { owner, value in
+                UIViewController.show(message: value)
+            }
+            .disposed(by: disposeBag)
+        
         classTitleLabel.text = row.title
         classDescLabel.text = row.description
-        categoryTag.text = Category.categories[row.category]
+        categoryTag.text = CategoryHelper.categories[row.category]
         PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
     }
     

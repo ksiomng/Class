@@ -24,7 +24,7 @@ final class SearchViewModel {
         let moveDetail: BehaviorRelay<ClassDetailInfo?>
     }
     
-    let disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
     
     init() { }
     

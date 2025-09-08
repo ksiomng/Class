@@ -8,10 +8,11 @@
 import UIKit
 
 final class UserDefaultsHelper {
-    static let shared = UserDefaultsHelper()
-    private let defaults = UserDefaults.standard
     
     private init() { }
+    
+    static let shared = UserDefaultsHelper()
+    private let defaults = UserDefaults.standard
     
     var token: String? {
         get {

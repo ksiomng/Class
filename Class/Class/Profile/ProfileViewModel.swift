@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class ProfileViewModel {
+final class ProfileViewModel {
     
     struct Input {
         let logoutButtonTap: ControlEvent<Void>
@@ -19,9 +19,9 @@ class ProfileViewModel {
         let logout: Observable<Void>
     }
     
-    private let disposeBag = DisposeBag()
-    
     init() { }
+    
+    private let disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
         let logoutSubject = PublishSubject<Void>()
