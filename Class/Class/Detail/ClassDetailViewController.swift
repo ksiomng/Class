@@ -214,7 +214,9 @@ class ClassDetailViewController: UIViewController {
             .bind { _ in
                 let vc = CommentViewController()
                 vc.titleNavigation = detailData.title
+                vc.category = detailData.category
                 vc.data = commentData
+                vc.id = detailData.class_id
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
