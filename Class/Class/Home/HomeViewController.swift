@@ -165,5 +165,13 @@ final class HomeViewController: UIViewController {
                 UIViewController.showAlert(message: message, viewController: owner)
             }
             .disposed(by: disposeBag)
+        
+        output.scrollToTop
+            .asDriver()
+            .skip(1)
+            .drive(with: self) { owner, _ in
+                owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
 }

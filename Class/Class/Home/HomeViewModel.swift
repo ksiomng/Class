@@ -25,6 +25,7 @@ final class HomeViewModel {
         let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: CategoryHelper.names)
         let moveDetail: BehaviorRelay<ClassDetailInfo?>
         let showAlert: PublishRelay<String>
+        let scrollToTop: BehaviorRelay<Void>
     }
     
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
@@ -38,6 +39,7 @@ final class HomeViewModel {
         let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
         let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
         let showAlert = PublishRelay<String>()
+        let scrollToTop = BehaviorRelay<Void>(value: ())
         
         input.reload
             .withLatestFrom(Observable.combineLatest(selectedCategory, isLatest))
@@ -61,6 +63,7 @@ final class HomeViewModel {
             .bind(with: self) { owner, state in
                 let processedData = owner.sortAndFilter(data: owner.allList.value, categories: state.0, isLatest: state.1)
                 list.accept(processedData)
+                scrollToTop.accept(())
             }
             .disposed(by: disposeBag)
         
@@ -108,7 +111,7 @@ final class HomeViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(list: list, isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail, showAlert: showAlert)
+        return Output(list: list, isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail, showAlert: showAlert, scrollToTop: scrollToTop)
     }
     
     private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {
