@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		571B69372E6F139A001AB51C /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 571B69362E6F139A001AB51C /* IQKeyboardManagerSwift */; };
 		5766CCD42E68385D002A26ED /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 5766CCD32E68385D002A26ED /* Alamofire */; };
 		5766CCD72E683870002A26ED /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5766CCD62E683870002A26ED /* RxCocoa */; };
 		5766CCD92E683870002A26ED /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5766CCD82E683870002A26ED /* RxSwift */; };
@@ -49,6 +50,7 @@
 				5766CCD72E683870002A26ED /* RxCocoa in Frameworks */,
 				5766CCD42E68385D002A26ED /* Alamofire in Frameworks */,
 				5766CCDF2E68388E002A26ED /* Kingfisher in Frameworks */,
+				571B69372E6F139A001AB51C /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +98,7 @@
 				5766CCD82E683870002A26ED /* RxSwift */,
 				5766CCDB2E68387F002A26ED /* SnapKit */,
 				5766CCDE2E68388E002A26ED /* Kingfisher */,
+				571B69362E6F139A001AB51C /* IQKeyboardManagerSwift */,
 			);
 			productName = Class;
 			productReference = 5766CB5D2E66BC96002A26ED /* Class.app */;
@@ -130,6 +133,7 @@
 				5766CCD52E683870002A26ED /* XCRemoteSwiftPackageReference "RxSwift" */,
 				5766CCDA2E68387F002A26ED /* XCRemoteSwiftPackageReference "SnapKit" */,
 				5766CCDD2E68388E002A26ED /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				571B69352E6F139A001AB51C /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5766CB5E2E66BC96002A26ED /* Products */;
@@ -375,6 +379,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		571B69352E6F139A001AB51C /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.1;
+			};
+		};
 		5766CCD22E68385D002A26ED /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
@@ -410,6 +422,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		571B69362E6F139A001AB51C /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 571B69352E6F139A001AB51C /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
 		5766CCD32E68385D002A26ED /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5766CCD22E68385D002A26ED /* XCRemoteSwiftPackageReference "Alamofire" */;
