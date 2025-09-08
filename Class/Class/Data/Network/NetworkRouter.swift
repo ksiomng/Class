@@ -18,6 +18,7 @@ enum NetworkRouter {
     case writeComment(id: String, content: String)
     case editComment(id: String, commentId: String, content: String)
     case deleteComment(id: String, commentId: String)
+    case image(path: String)
     
     var baseURL: String {
         APIURL.baseURL
@@ -43,6 +44,8 @@ enum NetworkRouter {
             return URL(string: "\(baseURL)\(APIURL.editComment(id: id, commentId: commentId))")!
         case .deleteComment(let id, let commentId):
             return URL(string: "\(baseURL)\(APIURL.editComment(id: id, commentId: commentId))")!
+        case .image(let path):
+            return URL(string: "\(baseURL)/v1\(path)")!
         }
     }
     
@@ -66,6 +69,8 @@ enum NetworkRouter {
         case .editComment(_, _, let content):
             return ["content": content]
         case .deleteComment(_, _):
+            return nil
+        case .image(_):
             return nil
         }
     }
@@ -106,6 +111,10 @@ enum NetworkRouter {
         case .deleteComment(_, _):
             return ["SesacKey": "\(APIKey.key)",
                     "Authorization": UserDefaultsHelper.shared.token!]
+        case .image(_):
+            return ["Content-Type": "application/json",
+                    "SesacKey": "\(APIKey.key)",
+                    "Authorization": UserDefaultsHelper.shared.token!]
         }
     }
     
@@ -128,6 +137,8 @@ enum NetworkRouter {
         case .editComment(_, _, _):
             return JSONEncoding.default
         case .deleteComment(_, _):
+            return URLEncoding.default
+        case .image(_):
             return URLEncoding.default
         }
     }
@@ -152,6 +163,8 @@ enum NetworkRouter {
             return .put
         case .deleteComment(_, _):
             return .delete
+        case .image(_):
+            return .get
         }
     }
 }

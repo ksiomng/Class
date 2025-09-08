@@ -17,7 +17,13 @@ extension UIViewController {
         return label
     }
     
-    static func show(message: String) {
+    static func showAlert(message: String, viewController: UIViewController) {
+         let alert = UIAlertController(title: "에러", message: message, preferredStyle: .alert)
+         alert.addAction(UIAlertAction(title: "확인", style: .default))
+         viewController.present(alert, animated: true)
+     }
+    
+    static func showToast(message: String) {
         guard let windowScene = UIApplication.shared.connectedScenes
             .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
               let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {

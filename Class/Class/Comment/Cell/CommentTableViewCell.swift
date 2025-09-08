@@ -97,7 +97,7 @@ final class CommentTableViewCell: UITableViewCell {
     
     func setupData(row: Comment) {
         if let profileImage = row.creator.profileImage {
-            NetworkManager.shared.callImage(imagePath: profileImage) { result in
+            NetworkManager.shared.callImage(api: .image(path: profileImage)) { result in
                 switch result {
                 case .success(let success):
                     self.profileImageView.image = success

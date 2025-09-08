@@ -63,7 +63,8 @@ final class LogInViewModel {
                         UserDefaultsHelper.shared.token = login.accessToken
                         UserDefaultsHelper.shared.userId = login.user_id
                         loginSubject.accept(true)
-                    case .failure(_):
+                    case .failure(let err):
+                        print(err)
                         loginSubject.accept(false)
                     }
                 }

@@ -195,7 +195,7 @@ final class ClassDetailViewController: UIViewController {
         
         output.toastMsg
             .bind(with: self) { owner, value in
-                UIViewController.show(message: value)
+                UIViewController.showToast(message: value)
             }
             .disposed(by: disposeBag)
         

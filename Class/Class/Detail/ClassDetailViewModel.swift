@@ -39,7 +39,7 @@ final class ClassDetailViewModel {
         input.detailsData
             .bind(with: self) { owner, value in
                 for image_url in value.image_urls {
-                    NetworkManager.shared.callImage(imagePath: image_url) { result in
+                    NetworkManager.shared.callImage(api: .image(path: image_url)) { result in
                         switch result {
                         case .success(let success):
                             var currentImages = images.value
@@ -52,7 +52,7 @@ final class ClassDetailViewModel {
                 }
                 
                 if let image = value.creator.profileImage {
-                    NetworkManager.shared.callImage(imagePath: image) { result in
+                    NetworkManager.shared.callImage(api: .image(path: image)) { result in
                         switch result {
                         case .success(let success):
                             profileImage.accept(success)

@@ -34,7 +34,7 @@ final class SearchClassTableViewCellModel {
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
         let toastMsg = PublishRelay<String>()
         
-        NetworkManager.shared.callImage(imagePath: input.imagePath) { result in
+        NetworkManager.shared.callImage(api: .image(path: input.imagePath)) { result in
             switch result {
             case .success(let success):
                 image.accept(success)

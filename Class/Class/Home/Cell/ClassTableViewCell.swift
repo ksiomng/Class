@@ -168,7 +168,7 @@ final class ClassTableViewCell: UITableViewCell {
         
         output.toastMsg
             .bind(with: self) { owner, value in
-                UIViewController.show(message: value)
+                UIViewController.showToast(message: value)
             }
             .disposed(by: disposeBag)
         

@@ -14,43 +14,48 @@ final class NetworkManager {
     
     private init() { }
     
-    func callRequest<T: Decodable>(api: NetworkRouter, type: T.Type, handler: @escaping ((Result<T, Error>) -> Void)) {
+    func callRequest<T: Decodable>(api: NetworkRouter, type: T.Type, handler: @escaping ((Result<T, APIError>) -> Void)) {
         AF.request(api.endPoint,
                    method: api.method,
                    parameters: api.parameters,
                    encoding: api.encoding,
                    headers: api.headers)
-        .responseDecodable(of: T.self) { response in
+        .responseData { response in
             switch response.result {
-            case .success(let value):
-                handler(.success(value))
-            case .failure(let error):
-                handler(.failure(error))
+            case .success(let data):
+                do {
+                    let value = try JSONDecoder().decode(T.self, from: data)
+                    handler(.success(value))
+                } catch {
+                    if let apiError = try? JSONDecoder().decode(APIError.self, from: data) {
+                        handler(.failure(apiError))
+                    } else {
+                        handler(.failure(APIError(message: error.localizedDescription)))
+                    }
+                }
+            case .failure(_):
+                handler(.failure(APIError(message: "네트워크 연결에 실패했습니다")))
             }
         }
     }
     
-    func callImage(imagePath: String, handler: @escaping (Result<UIImage, Error>) -> Void) {
-        
-        let imageURL = URL(string: "\(APIURL.baseURL)/v1\(imagePath)")!
-        
-        let headers: HTTPHeaders = [
-            "Content-Type": "application/json",
-            "SesacKey": "\(APIKey.key)",
-            "Authorization": UserDefaultsHelper.shared.token!
-        ]
-        
-        AF.request(imageURL, method: .get, headers: headers)
-            .validate(statusCode: 200..<300)
+    func callImage(api: NetworkRouter, handler: @escaping (Result<UIImage, APIError>) -> Void) {
+            guard case .image = api else { return }
+
+            AF.request(api.endPoint,
+                       method: api.method,
+                       headers: api.headers)
             .responseData { response in
                 switch response.result {
                 case .success(let data):
                     if let image = UIImage(data: data) {
                         handler(.success(image))
+                    } else {
+                        handler(.failure(APIError(message: "이미지 변환 실패")))
                     }
-                case .failure(let error):
-                    handler(.failure(error))
+                case .failure:
+                    handler(.failure(APIError(message: "네트워크 연결에 실패했습니다")))
                 }
             }
-    }
+        }
 }
