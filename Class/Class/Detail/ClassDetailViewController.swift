@@ -211,6 +211,9 @@ class ClassDetailViewController: UIViewController {
         commentButton.rx.tap
             .bind { _ in
                 let vc = CommentViewController()
+                vc.commentCount = { value in
+                    self.commentButton.setTitle("댓글보기 (\(value))", for: .normal)
+                }
                 vc.titleNavigation = detailData.title
                 vc.category = detailData.category
                 vc.id = detailData.class_id

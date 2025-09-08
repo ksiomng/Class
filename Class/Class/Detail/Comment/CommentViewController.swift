@@ -15,6 +15,7 @@ class CommentViewController: UIViewController {
     var category = 0
     var id = ""
     let reload = PublishRelay<Void>()
+    var commentCount: ((Int) -> Void)?
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -63,6 +64,7 @@ class CommentViewController: UIViewController {
                     switch result {
                     case .success(let success):
                         dataRelay.accept(success.data)
+                        owner.commentCount?(success.data.count)
                     case .failure(let failure):
                         print(failure)
                     }
