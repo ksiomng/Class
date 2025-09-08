@@ -67,6 +67,11 @@ final class LogInViewController: UIViewController {
         bind()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        emailTextField.becomeFirstResponder()
+    }
+    
     private func setupUI() {
         view.addSubview(imageView)
         view.addSubview(emailLabel)
@@ -142,8 +147,6 @@ final class LogInViewController: UIViewController {
             .bind(with: self) { owner, value in
                 if value {
                     owner.view.window?.rootViewController = RootViewControllerManager.getRootViewController()
-                } else {
-                    // TODO: 에러처리
                 }
             }
             .disposed(by: disposeBag)

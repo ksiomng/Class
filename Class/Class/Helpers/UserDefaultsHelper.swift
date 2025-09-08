@@ -36,7 +36,8 @@ final class UserDefaultsHelper {
         }
     }
     
-    func clearToken() {
+    func clear() {
         defaults.removeObject(forKey: "token")
+        defaults.removeObject(forKey: "userId")
     }
 }
