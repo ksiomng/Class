@@ -23,7 +23,8 @@ final class StringFormatter {
     }
     
     static func formatCommentDate(str: String) -> String {
-        let formatter = DateFormatter()
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
         guard let date = formatter.date(from: str) else {
             return ""

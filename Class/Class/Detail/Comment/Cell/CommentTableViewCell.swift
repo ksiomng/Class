@@ -12,7 +12,7 @@ class CommentTableViewCell: UITableViewCell {
     private let profileImageView = {
         let image = UIImageView()
         image.clipsToBounds = true
-        image.layer.cornerRadius = 10
+        image.layer.cornerRadius = 15
         return image
     }()
     
@@ -32,6 +32,7 @@ class CommentTableViewCell: UITableViewCell {
     private let contentLabel = {
         let label = UILabel()
         label.font = .smallFont
+        label.numberOfLines = 0
         return label
     }()
     
@@ -55,27 +56,27 @@ class CommentTableViewCell: UITableViewCell {
         contentView.addSubview(editButton)
         
         profileImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(4)
+            make.top.equalToSuperview().offset(8)
             make.leading.equalToSuperview().offset(16)
-            make.height.width.equalTo(20)
+            make.height.width.equalTo(30)
         }
         
         nameLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(4)
+            make.top.equalTo(profileImageView)
             make.leading.equalTo(profileImageView.snp.trailing).offset(8)
             make.trailing.equalToSuperview().offset(-16)
         }
         
         timeLabel.snp.makeConstraints { make in
-            make.top.equalTo(nameLabel.snp.bottom).offset(4)
+            make.top.equalTo(nameLabel.snp.bottom).offset(2)
             make.leading.equalTo(nameLabel)
         }
         
         contentLabel.snp.makeConstraints { make in
-            make.top.equalTo(timeLabel.snp.bottom).offset(16)
+            make.top.equalTo(timeLabel.snp.bottom).offset(10)
             make.leading.equalTo(nameLabel)
             make.trailing.equalToSuperview().offset(-16)
-            make.bottom.equalToSuperview().offset(-4)
+            make.bottom.equalToSuperview().offset(-12)
         }
         
         editButton.snp.makeConstraints { make in

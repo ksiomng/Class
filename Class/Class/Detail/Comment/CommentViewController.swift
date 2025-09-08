@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class CommentViewController: UIViewController {
     
@@ -15,7 +17,7 @@ class CommentViewController: UIViewController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(CommentTableViewCell.self, forCellReuseIdentifier: CommentTableViewCell.identifier)
-        tableView.separatorInset = .zero
+        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -25,9 +27,12 @@ class CommentViewController: UIViewController {
         return view
     }()
     
+    private let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        bind()
     }
     
     private func setupUI() {
@@ -40,5 +45,17 @@ class CommentViewController: UIViewController {
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }
+    }
+    
+    private func bind() {
+        BehaviorRelay(value: data)
+            .asDriver()
+            .drive(tableView.rx
+                .items(cellIdentifier: CommentTableViewCell.identifier,
+                       cellType: CommentTableViewCell.self)) { (row, element, cell) in
+                cell.setupData(row: element)
+                cell.selectionStyle = .none
+            }
+            .disposed(by: disposeBag)
     }
 }
