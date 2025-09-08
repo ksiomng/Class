@@ -152,11 +152,6 @@ final class ClassDetailViewController: UIViewController {
     private func bind(detailData: ClassDetailInfo) {
         var liked = detailData.is_liked
         
-        userName.text = detailData.creator.nick
-        infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
-        classDescText.text = detailData.description
-        statusLikeButton(detailData.is_liked)
-        
         let input = ClassDetailViewModel.Input(detailsData: BehaviorRelay(value: detailData), likeButtonTap: likeButton.rx.tap, liked: liked)
         let output = viewModel.transform(input: input)
         
@@ -197,6 +192,17 @@ final class ClassDetailViewController: UIViewController {
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        output.toastMsg
+            .bind(with: self) { owner, value in
+                UIViewController.show(message: value)
+            }
+            .disposed(by: disposeBag)
+        
+        userName.text = detailData.creator.nick
+        infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
+        classDescText.text = detailData.description
+        statusLikeButton(detailData.is_liked)
     }
     
     private func setCommentButton(_ count: Int) {

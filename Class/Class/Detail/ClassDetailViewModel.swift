@@ -22,6 +22,7 @@ final class ClassDetailViewModel {
         let profileImage: BehaviorRelay<UIImage>
         let commentsCount: BehaviorRelay<Int>
         let isLiked: BehaviorRelay<Bool>
+        let toastMsg: PublishRelay<String>
     }
     
     init() { }
@@ -33,6 +34,7 @@ final class ClassDetailViewModel {
         let profileImage = BehaviorRelay<UIImage>(value: UIImage())
         let commentsCount = BehaviorRelay<Int>(value: 0)
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
+        let toastMsg = PublishRelay<String>()
         
         input.detailsData
             .bind(with: self) { owner, value in
@@ -79,6 +81,11 @@ final class ClassDetailViewModel {
                     switch result {
                     case .success(let success):
                         isLiked.accept(success.like_status)
+                        if success.like_status {
+                            toastMsg.accept("[\(input.detailsData.value.title)] 클래스를 찜했습니다.")
+                        } else {
+                            toastMsg.accept("[\(input.detailsData.value.title)] 클래스 찜을 취소했습니다.")
+                        }
                     case .failure(let failure):
                         print(failure)
                     }
@@ -86,6 +93,6 @@ final class ClassDetailViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(images: images, profileImage: profileImage, commentsCount: commentsCount, isLiked: isLiked)
+        return Output(images: images, profileImage: profileImage, commentsCount: commentsCount, isLiked: isLiked, toastMsg: toastMsg)
     }
 }
