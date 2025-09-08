@@ -13,7 +13,6 @@ import RxCocoa
 class ClassDetailViewController: UIViewController {
     
     var data: ClassDetailInfo?
-    var liked = false
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -143,76 +142,47 @@ class ClassDetailViewController: UIViewController {
         }
     }
     
+    let viewModel = ClassDetailViewModel()
+    
     private func bind() {
         guard let detailData = data else { return }
+        var liked = detailData.is_liked
         
-        BehaviorSubject(value: detailData.image_urls)
+        let input = ClassDetailViewModel.Input(detailsData: BehaviorRelay(value: detailData), likeButtonTap: likeButton.rx.tap, liked: liked)
+        let output = viewModel.transform(input: input)
+        
+        output.images
             .bind(to: collectionView.rx
                 .items(cellIdentifier: ImageCollectionViewCell.identifier,cellType: ImageCollectionViewCell.self)) { index, element, cell in
-                    NetworkManager.shared.callImage(imagePath: element) { result in
-                        switch result {
-                        case .success(let success):
-                            cell.setImage(image: success)
-                        case .failure(let failure):
-                            print(failure)
-                        }
-                    }
+                    cell.setImage(image: element)
                 }
                 .disposed(by: disposeBag)
         
-        if let image = detailData.creator.profileImage {
-            NetworkManager.shared.callImage(imagePath: image) { result in
-                switch result {
-                case .success(let success):
-                    self.userProfile.image = success
-                case .failure(let failure):
-                    print(failure)
-                }
-            }
-        } else {
-            userProfile.image = UIImage(systemName: "person.fill")
-        }
-        
-        userName.text = detailData.creator.nick
-        
-        infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
-        
-        classDescText.text = detailData.description
-        
-        liked = detailData.is_liked
-        
-        statusLikeButton(liked)
-        
-        likeButton.rx.tap
-            .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: detailData.class_id, status: !owner.liked), type: Like.self) { result in
-                    switch result {
-                    case .success(let success):
-                        owner.statusLikeButton(success.like_status)
-                        owner.liked = success.like_status
-                    case .failure(let failure):
-                        print(failure)
-                    }
-                }
+        output.profileImage
+            .bind(with: self) { owner, value in
+                owner.userProfile.image = value
             }
             .disposed(by: disposeBag)
         
-        NetworkManager.shared.callRequest(api: .comment(id: detailData.class_id), type: Comments.self) { result in
-            switch result {
-            case .success(let success):
-                self.commentButton.setTitle("댓글보기 (\(success.data.count))", for: .normal)
-                self.commentButton.backgroundColor = success.data.isEmpty ? .grayC : .orangeC
-                self.commentButton.isEnabled = !success.data.isEmpty
-            case .failure(let failure):
-                print(failure)
+        output.isLiked
+            .asDriver()
+            .drive(with: self) { owner, value in
+                owner.statusLikeButton(value)
+                liked = value
             }
-        }
+            .disposed(by: disposeBag)
+        
+        output.commentsCount
+            .bind(with: self) { owner, value in
+                owner.setCommentButton(value)
+            }
+            .disposed(by: disposeBag)
         
         commentButton.rx.tap
             .bind { _ in
                 let vc = CommentViewController()
                 vc.commentCount = { value in
-                    self.commentButton.setTitle("댓글보기 (\(value))", for: .normal)
+                    self.setCommentButton(value)
                 }
                 vc.titleNavigation = detailData.title
                 vc.category = detailData.category
@@ -220,6 +190,21 @@ class ClassDetailViewController: UIViewController {
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        setupUIData(detailData)
+    }
+    
+    private func setupUIData(_ data: ClassDetailInfo) {
+        userName.text = data.creator.nick
+        infoView.setData(location: data.location, date: data.date, capacity: data.capacity)
+        classDescText.text = data.description
+        statusLikeButton(data.is_liked)
+    }
+    
+    private func setCommentButton(_ count: Int) {
+        self.commentButton.setTitle("댓글보기 (\(count))", for: .normal)
+        self.commentButton.backgroundColor = count == 0 ? .grayC : .orangeC
+        self.commentButton.isEnabled = !(count == 0)
     }
     
     private func statusLikeButton(_ isLiked: Bool) {
