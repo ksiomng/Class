@@ -22,6 +22,7 @@ final class SearchViewModel {
         let message: BehaviorRelay<String?>
         let list: Driver<[ClassInfo]>
         let moveDetail: BehaviorRelay<ClassDetailInfo?>
+        let showAlert: PublishRelay<String>
     }
     
     private let disposeBag = DisposeBag()
@@ -32,6 +33,7 @@ final class SearchViewModel {
         let message = BehaviorRelay<String?>(value: "원하는 클래스가 있으신가요?")
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
+        let showAlert = PublishRelay<String>()
         
         input.reload
             .withLatestFrom(input.searchText)
@@ -41,7 +43,7 @@ final class SearchViewModel {
                     case .success(let success):
                         list.accept(success.data)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
@@ -61,7 +63,7 @@ final class SearchViewModel {
                             message.accept(nil)
                         }
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
@@ -74,12 +76,12 @@ final class SearchViewModel {
                     case .success(let success):
                         moveDetail.accept(success)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        return Output(message: message, list: list.asDriver(), moveDetail: moveDetail)
+        return Output(message: message, list: list.asDriver(), moveDetail: moveDetail, showAlert: showAlert)
     }
 }

@@ -19,6 +19,7 @@ final class CommentViewModel {
     
     struct Output {
         let data: BehaviorRelay<[Comment]>
+        let showAlert: PublishRelay<String>
     }
     
     init() { }
@@ -27,6 +28,7 @@ final class CommentViewModel {
     
     func transform(input: Input) -> Output {
         let data = BehaviorRelay<[Comment]>(value: [])
+        let showAlert = PublishRelay<String>()
         
         input.loadData
             .bind(with: self) { owner, _ in
@@ -35,7 +37,7 @@ final class CommentViewModel {
                     case .success(let success):
                         data.accept(success.data)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
@@ -49,6 +51,6 @@ final class CommentViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(data: data)
+        return Output(data: data, showAlert: showAlert)
     }
 }

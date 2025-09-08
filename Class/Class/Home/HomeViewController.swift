@@ -103,9 +103,14 @@ final class HomeViewController: UIViewController {
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
+                cell.showAlert
+                    .bind(with: self) { owner, message in
+                        UIViewController.showAlert(message: message, viewController: owner)
+                    }
+                    .disposed(by: cell.disposeBag)
                 cell.selectionStyle = .none
             }
-                       .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         output.list
             .asDriver()
@@ -147,6 +152,12 @@ final class HomeViewController: UIViewController {
                 vc.setData(data: value)
                 vc.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.showAlert
+            .bind(with: self) { owner, message in
+                UIViewController.showAlert(message: message, viewController: owner)
             }
             .disposed(by: disposeBag)
     }

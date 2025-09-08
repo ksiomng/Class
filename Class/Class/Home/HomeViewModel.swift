@@ -24,6 +24,7 @@ final class HomeViewModel {
         let selectedCategory: BehaviorRelay<[String]>
         let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: CategoryHelper.names)
         let moveDetail: BehaviorRelay<ClassDetailInfo?>
+        let showAlert: PublishRelay<String>
     }
     
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
@@ -36,6 +37,7 @@ final class HomeViewModel {
         let isLatest = BehaviorRelay<Bool>(value: true)
         let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
         let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
+        let showAlert = PublishRelay<String>()
         
         input.reload
             .withLatestFrom(Observable.combineLatest(selectedCategory, isLatest))
@@ -47,7 +49,7 @@ final class HomeViewModel {
                         let processedData = owner.sortAndFilter(data: owner.allList.value, categories: state.0, isLatest: state.1)
                         list.accept(processedData)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
@@ -100,13 +102,13 @@ final class HomeViewModel {
                     case .success(let success):
                         moveDetail.accept(success)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        return Output(list: list, isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail)
+        return Output(list: list, isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail, showAlert: showAlert)
     }
     
     private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {

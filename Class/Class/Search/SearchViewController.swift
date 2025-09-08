@@ -91,6 +91,11 @@ final class SearchViewController: UIViewController {
                 .items(cellIdentifier: SearchClassTableViewCell.identifier,
                        cellType: SearchClassTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
+                cell.showAlert
+                    .bind(with: self) { owner, message in
+                        UIViewController.showAlert(message: message, viewController: owner)
+                    }
+                    .disposed(by: cell.disposeBag)
                 cell.selectionStyle = .none
             }
                        .disposed(by: disposeBag)

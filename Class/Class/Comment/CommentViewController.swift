@@ -76,6 +76,11 @@ final class CommentViewController: UIViewController {
                 .items(cellIdentifier: CommentTableViewCell.identifier,
                        cellType: CommentTableViewCell.self)) { (row, element, cell) in
                 cell.setupData(row: element)
+                cell.showAlert
+                    .bind(with: self) { owner, message in
+                        UIViewController.showAlert(message: message, viewController: owner)
+                    }
+                    .disposed(by: cell.disposeBag)
                 cell.editButtonTap
                     .bind(with: self) { owner, _ in
                         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -104,6 +109,12 @@ final class CommentViewController: UIViewController {
                 let nav = UINavigationController(rootViewController: vc)
                 nav.modalPresentationStyle = .fullScreen
                 owner.present(nav, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.showAlert
+            .bind(with: self) { owner, message in
+                UIViewController.showAlert(message: message, viewController: owner)
             }
             .disposed(by: disposeBag)
     }

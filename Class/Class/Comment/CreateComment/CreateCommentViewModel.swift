@@ -25,6 +25,7 @@ final class CreateCommentViewModel {
         let statusText: BehaviorRelay<String>
         let statusColor: BehaviorRelay<UIColor>
         let successWriteComment: PublishSubject<Bool>
+        let showAlert: PublishRelay<String>
     }
     
     init() { }
@@ -36,6 +37,7 @@ final class CreateCommentViewModel {
         let statusText = BehaviorRelay<String>(value: "0/200")
         let statusColor = BehaviorRelay<UIColor>(value: .grayC)
         let successWriteComment = PublishSubject<Bool>()
+        let showAlert = PublishRelay<String>()
         
         input.content
             .map { $0.replacingOccurrences(of: " ", with: "") }
@@ -61,7 +63,7 @@ final class CreateCommentViewModel {
                         case .success(_):
                             successWriteComment.onNext(true)
                         case .failure(let failure):
-                            print(failure)
+                            showAlert.accept(failure.message)
                         }
                     }
                 } else {
@@ -70,13 +72,13 @@ final class CreateCommentViewModel {
                         case .success(_):
                             successWriteComment.onNext(true)
                         case .failure(let failure):
-                            print(failure)
+                            showAlert.accept(failure.message)
                         }
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        return Output(status: status, statusText: statusText, statusColor: statusColor, successWriteComment: successWriteComment)
+        return Output(status: status, statusText: statusText, statusColor: statusColor, successWriteComment: successWriteComment, showAlert: showAlert)
     }
 }

@@ -23,6 +23,7 @@ final class ClassTableViewCellModel {
         var image: Driver<UIImage>
         let isLiked: BehaviorRelay<Bool>
         let toastMsg: PublishRelay<String>
+        let showAlert: PublishRelay<String>
     }
     
     private let disposeBag = DisposeBag()
@@ -33,13 +34,14 @@ final class ClassTableViewCellModel {
         let image = BehaviorRelay<UIImage>(value: UIImage())
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
         let toastMsg = PublishRelay<String>()
+        let showAlert = PublishRelay<String>()
         
         NetworkManager.shared.callImage(api: .image(path: input.imagePath)) { result in
             switch result {
             case .success(let success):
                 image.accept(success)
             case .failure(let failure):
-                print(failure)
+                showAlert.accept(failure.message)
             }
         }
         
@@ -55,12 +57,12 @@ final class ClassTableViewCellModel {
                             toastMsg.accept("[\(input.className)] 클래스 찜을 취소했습니다.")
                         }
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        return Output(image: image.asDriver(), isLiked: isLiked, toastMsg: toastMsg)
+        return Output(image: image.asDriver(), isLiked: isLiked, toastMsg: toastMsg, showAlert: showAlert)
     }
 }

@@ -199,6 +199,12 @@ final class ClassDetailViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
+        output.showAlert
+            .bind(with: self) { owner, message in
+                UIViewController.showAlert(message: message, viewController: owner)
+            }
+            .disposed(by: disposeBag)
+        
         userName.text = detailData.creator.nick
         infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
         classDescText.text = detailData.description

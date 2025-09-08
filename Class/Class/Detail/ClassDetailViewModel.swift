@@ -23,6 +23,7 @@ final class ClassDetailViewModel {
         let commentsCount: BehaviorRelay<Int>
         let isLiked: BehaviorRelay<Bool>
         let toastMsg: PublishRelay<String>
+        let showAlert: PublishRelay<String>
     }
     
     init() { }
@@ -35,6 +36,7 @@ final class ClassDetailViewModel {
         let commentsCount = BehaviorRelay<Int>(value: 0)
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
         let toastMsg = PublishRelay<String>()
+        let showAlert = PublishRelay<String>()
         
         input.detailsData
             .bind(with: self) { owner, value in
@@ -46,7 +48,7 @@ final class ClassDetailViewModel {
                             currentImages.append(success)
                             images.accept(currentImages)
                         case .failure(let failure):
-                            print(failure)
+                            showAlert.accept(failure.message)
                         }
                     }
                 }
@@ -57,7 +59,7 @@ final class ClassDetailViewModel {
                         case .success(let success):
                             profileImage.accept(success)
                         case .failure(let failure):
-                            print(failure)
+                            showAlert.accept(failure.message)
                         }
                     }
                 } else {
@@ -69,7 +71,7 @@ final class ClassDetailViewModel {
                     case .success(let success):
                         commentsCount.accept(success.data.count)
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
@@ -87,12 +89,12 @@ final class ClassDetailViewModel {
                             toastMsg.accept("[\(input.detailsData.value.title)] 클래스 찜을 취소했습니다.")
                         }
                     case .failure(let failure):
-                        print(failure)
+                        showAlert.accept(failure.message)
                     }
                 }
             }
             .disposed(by: disposeBag)
         
-        return Output(images: images, profileImage: profileImage, commentsCount: commentsCount, isLiked: isLiked, toastMsg: toastMsg)
+        return Output(images: images, profileImage: profileImage, commentsCount: commentsCount, isLiked: isLiked, toastMsg: toastMsg, showAlert: showAlert)
     }
 }

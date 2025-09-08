@@ -51,7 +51,11 @@ final class NetworkManager {
                     if let image = UIImage(data: data) {
                         handler(.success(image))
                     } else {
-                        handler(.failure(APIError(message: "이미지 변환 실패")))
+                        if let apiError = try? JSONDecoder().decode(APIError.self, from: data) {
+                            handler(.failure(apiError))
+                        } else {
+                            handler(.failure(APIError(message: "이미지 변환 실패")))
+                        }
                     }
                 case .failure:
                     handler(.failure(APIError(message: "네트워크 연결에 실패했습니다")))

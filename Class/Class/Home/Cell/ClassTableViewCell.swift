@@ -7,8 +7,11 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 final class ClassTableViewCell: UITableViewCell {
+    
+    let showAlert = PublishRelay<String>()
     
     private let classImageView = {
         let imageView = UIImageView()
@@ -81,7 +84,7 @@ final class ClassTableViewCell: UITableViewCell {
     }()
     
     private let viewModel = ClassTableViewCellModel()
-    private var disposeBag = DisposeBag()
+    var disposeBag = DisposeBag()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -170,6 +173,10 @@ final class ClassTableViewCell: UITableViewCell {
             .bind(with: self) { owner, value in
                 UIViewController.showToast(message: value)
             }
+            .disposed(by: disposeBag)
+        
+        output.showAlert
+            .bind(to: showAlert)
             .disposed(by: disposeBag)
         
         classTitleLabel.text = row.title

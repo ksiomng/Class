@@ -11,6 +11,7 @@ import RxCocoa
 
 final class CommentTableViewCell: UITableViewCell {
     let editButtonTap = PublishRelay<Void>()
+    let showAlert = PublishRelay<String>()
     
     private let profileImageView = {
         let image = UIImageView()
@@ -102,7 +103,7 @@ final class CommentTableViewCell: UITableViewCell {
                 case .success(let success):
                     self.profileImageView.image = success
                 case .failure(let failure):
-                    print(failure)
+                    self.showAlert.accept(failure.message)
                 }
             }
         } else {
