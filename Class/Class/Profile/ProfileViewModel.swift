@@ -28,7 +28,7 @@ final class ProfileViewModel {
         
         input.logoutButtonTap
             .bind(with: self) { owner, _ in
-                UserDefaultsHelper.shared.clearToken()
+                UserDefaultsHelper.shared.clear()
                 logoutSubject.onNext(())
             }
             .disposed(by: disposeBag)
