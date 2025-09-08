@@ -23,46 +23,22 @@ extension UIViewController {
          viewController.present(alert, animated: true)
      }
     
-    static func showToast(message: String) {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
-            return
-        }
-        
-        let toastLabel = UILabel()
-        toastLabel.text = message
+    static func showToast(message : String, viewController: UIViewController) {
+        let toastLabel = UILabel(frame: CGRect(x: 25 , y: UIScreen.main.bounds.size.height-150, width: UIScreen.main.bounds.size.width - 50, height: 60))
+        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        toastLabel.textColor = UIColor.white
         toastLabel.font = .mediumBoldFont
-        toastLabel.textColor = .white
-        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        toastLabel.textAlignment = .center
-        toastLabel.alpha = 0.0
-        toastLabel.layer.cornerRadius = 10
-        toastLabel.clipsToBounds = true
+        toastLabel.textAlignment = .center;
+        toastLabel.text = message
         toastLabel.numberOfLines = 0
-        
-        let maxSize = CGSize(width: window.frame.width - 40, height: window.frame.height)
-        var expectedSize = toastLabel.sizeThatFits(maxSize)
-        expectedSize.width += 20
-        expectedSize.height += 16
-        
-        toastLabel.frame = CGRect(
-            x: (window.frame.width - expectedSize.width) / 2,
-            y: window.frame.height - expectedSize.height - 100,
-            width: expectedSize.width,
-            height: expectedSize.height
-        )
-        
-        window.addSubview(toastLabel)
-        
-        UIView.animate(withDuration: 0.3, animations: {
-            toastLabel.alpha = 1.0
-        }) { _ in
-            UIView.animate(withDuration: 0.3, delay: 2.0, options: .curveEaseOut, animations: {
-                toastLabel.alpha = 0.0
-            }) { _ in
-                toastLabel.removeFromSuperview()
-            }
-        }
+        toastLabel.alpha = 1.0
+        toastLabel.layer.cornerRadius = 10;
+        toastLabel.clipsToBounds  =  true
+        viewController.view.addSubview(toastLabel)
+        UIView.animate(withDuration: 1.0, delay: 0.5, options: .curveEaseOut, animations: {
+            toastLabel.alpha = 0.0
+        }, completion: {(isCompleted) in
+            toastLabel.removeFromSuperview()
+        })
     }
 }

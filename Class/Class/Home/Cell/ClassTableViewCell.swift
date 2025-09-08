@@ -12,6 +12,7 @@ import RxCocoa
 final class ClassTableViewCell: UITableViewCell {
     
     let showAlert = PublishRelay<String>()
+    let showToast = PublishRelay<String>()
     
     private let classImageView = {
         let imageView = UIImageView()
@@ -170,9 +171,7 @@ final class ClassTableViewCell: UITableViewCell {
             .disposed(by: disposeBag)
         
         output.toastMsg
-            .bind(with: self) { owner, value in
-                UIViewController.showToast(message: value)
-            }
+            .bind(to: showToast)
             .disposed(by: disposeBag)
         
         output.showAlert

@@ -13,6 +13,7 @@ import RxCocoa
 final class SearchClassTableViewCell: UITableViewCell {
     
     let showAlert = PublishRelay<String>()
+    let showToast = PublishRelay<String>()
     
     private let classImageView = {
         let imageView = UIImageView()
@@ -156,9 +157,7 @@ final class SearchClassTableViewCell: UITableViewCell {
             .disposed(by: disposeBag)
         
         output.toastMsg
-            .bind(with: self) { owner, value in
-                UIViewController.showToast(message: value)
-            }
+            .bind(to: showToast)
             .disposed(by: disposeBag)
         
         output.showAlert
