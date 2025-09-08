@@ -184,9 +184,7 @@ class ClassDetailViewController: UIViewController {
                 vc.commentCount = { value in
                     self.setCommentButton(value)
                 }
-                vc.titleNavigation = detailData.title
-                vc.category = detailData.category
-                vc.id = detailData.class_id
+                vc.data = detailData
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

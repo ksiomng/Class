@@ -11,9 +11,7 @@ import RxCocoa
 
 class CommentViewController: UIViewController {
     
-    var titleNavigation = ""
-    var category = 0
-    var id = ""
+    var data: ClassDetailInfo?
     let reload = PublishRelay<Void>()
     var commentCount: ((Int) -> Void)?
     
@@ -34,8 +32,9 @@ class CommentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        bind()
+        guard let data = data else { return }
+        setupUI(data: data)
+        bind(data: data)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -43,9 +42,9 @@ class CommentViewController: UIViewController {
         reload.accept(())
     }
     
-    private func setupUI() {
+    private func setupUI(data: ClassDetailInfo) {
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: writeButton)
-        navigationItem.title = titleNavigation
+        navigationItem.title = data.title
         
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -55,12 +54,12 @@ class CommentViewController: UIViewController {
         }
     }
     
-    private func bind() {
+    private func bind(data: ClassDetailInfo) {
         let dataRelay = BehaviorRelay<[Comment]>(value: [])
         
         reload
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .comment(id: owner.id), type: Comments.self) { result in
+                NetworkManager.shared.callRequest(api: .comment(id: data.class_id), type: Comments.self) { result in
                     switch result {
                     case .success(let success):
                         dataRelay.accept(success.data)
@@ -87,9 +86,9 @@ class CommentViewController: UIViewController {
                             let vc = CreateCommentViewController()
                             vc.isCreated = false
                             vc.beforeText = element.content
-                            vc.titleClass = owner.titleNavigation
-                            vc.category = owner.category
-                            vc.id = owner.id
+                            vc.titleClass = data.title
+                            vc.category = data.category
+                            vc.id = data.class_id
                             vc.commentId = element.comment_id
                             
                             let nav = UINavigationController(rootViewController: vc)
@@ -97,7 +96,7 @@ class CommentViewController: UIViewController {
                             owner.present(nav, animated: true)
                         })
                         alert.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive) { _ in
-                            NetworkManager.shared.callRequest(api: .deleteComment(id: owner.id, commentId: element.comment_id), type: EmptyResponse.self) { _ in
+                            NetworkManager.shared.callRequest(api: .deleteComment(id: data.class_id, commentId: element.comment_id), type: EmptyResponse.self) { _ in
                                 owner.reload.accept(())
                             }
                         })
@@ -107,15 +106,15 @@ class CommentViewController: UIViewController {
                     .disposed(by: cell.disposeBag)
                 cell.selectionStyle = .none
             }
-                       .disposed(by: disposeBag)
+            .disposed(by: disposeBag)
         
         writeButton.rx.tap
             .bind(with: self) { owner, _ in
                 let vc = CreateCommentViewController()
                 vc.isCreated = true
-                vc.titleClass = owner.titleNavigation
-                vc.category = owner.category
-                vc.id = owner.id
+                vc.titleClass = data.title
+                vc.category = data.category
+                vc.id = data.class_id
                 
                 let nav = UINavigationController(rootViewController: vc)
                 nav.modalPresentationStyle = .fullScreen
