@@ -69,6 +69,7 @@ class HomeViewController: UIViewController {
         let output = viewModel.transform(input: input)
         
         output.list
+            .asDriver()
             .drive(classTableView.rx
                 .items(cellIdentifier: ClassTableViewCell.identifier,
                        cellType: ClassTableViewCell.self)) { (row, element, cell) in
@@ -81,9 +82,6 @@ class HomeViewController: UIViewController {
             .asDriver()
             .drive(with: self) { owner, list in
                 owner.totalCountLabel.text = StringFormatter.formatWithComma(list.count) + "개"
-                if list.count != 0 {
-                    owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                }
             }
             .disposed(by: disposeBag)
         

@@ -19,7 +19,7 @@ final class HomeViewModel {
     }
     
     struct Output {
-        let list: Driver<[ClassInfo]>
+        let list: BehaviorRelay<[ClassInfo]>
         let isLatest: BehaviorRelay<Bool>
         let selectedCategory: BehaviorRelay<[String]>
         let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: Category.names)
@@ -106,7 +106,7 @@ final class HomeViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(list: list.asDriver(), isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail)
+        return Output(list: list, isLatest: isLatest, selectedCategory: selectedCategory, moveDetail: moveDetail)
     }
     
     private func sortAndFilter(data: [ClassInfo], categories: [String], isLatest: Bool) -> [ClassInfo] {
