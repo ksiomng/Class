@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 import RxSwift
 import RxCocoa
 
@@ -27,7 +28,7 @@ final class CommentViewController: UIViewController {
         return button
     }()
     
-    func setData(data: ClassDetailInfo?) {
+    func moveData(data: ClassDetailInfo?) {
         self.data = data
     }
     

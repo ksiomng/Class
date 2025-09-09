@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 final class InfoView: UIView {
     
@@ -126,7 +127,7 @@ final class InfoView: UIView {
         }
     }
     
-    func setData(location: String?, date: String?, capacity: Int?) {
+    func setupData(location: String?, date: String?, capacity: Int?) {
         if let loc = location {
             self.locationInfo.text = loc
         } else {

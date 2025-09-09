@@ -73,7 +73,7 @@ final class ClassDetailViewController: UIViewController {
     
     private let likeButton = UIButton()
     
-    func setData(data: ClassDetailInfo?) {
+    func moveData(data: ClassDetailInfo?) {
         self.data = data
     }
     
@@ -147,7 +147,7 @@ final class ClassDetailViewController: UIViewController {
         }
     }
     
-    let viewModel = ClassDetailViewModel()
+    private let viewModel = ClassDetailViewModel()
     
     private func bind(detailData: ClassDetailInfo) {
         var liked = detailData.is_liked
@@ -188,7 +188,7 @@ final class ClassDetailViewController: UIViewController {
                 vc.commentCount = { value in
                     self.setCommentButton(value)
                 }
-                vc.setData(data: detailData)
+                vc.moveData(data: detailData)
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
@@ -206,7 +206,7 @@ final class ClassDetailViewController: UIViewController {
             .disposed(by: disposeBag)
         
         userName.text = detailData.creator.nick
-        infoView.setData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
+        infoView.setupData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
         classDescText.text = detailData.description
         statusLikeButton(detailData.is_liked)
     }

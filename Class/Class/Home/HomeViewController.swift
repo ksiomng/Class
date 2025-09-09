@@ -154,7 +154,7 @@ final class HomeViewController: UIViewController {
             .skip(1)
             .bind { value in
                 let vc = ClassDetailViewController()
-                vc.setData(data: value)
+                vc.moveData(data: value)
                 vc.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(vc, animated: true)
             }
