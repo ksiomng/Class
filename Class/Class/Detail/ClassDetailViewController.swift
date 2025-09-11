@@ -150,7 +150,7 @@ final class ClassDetailViewController: UIViewController {
     private let viewModel = ClassDetailViewModel()
     
     private func bind(detailData: ClassDetailInfo) {
-        var liked = detailData.is_liked
+        var liked = detailData.isLiked
         
         let input = ClassDetailViewModel.Input(detailsData: BehaviorRelay(value: detailData), likeButtonTap: likeButton.rx.tap, liked: liked)
         let output = viewModel.transform(input: input)
@@ -208,7 +208,7 @@ final class ClassDetailViewController: UIViewController {
         userName.text = detailData.creator.nick
         infoView.setupData(location: detailData.location, date: detailData.date, capacity: detailData.capacity)
         classDescText.text = detailData.description
-        statusLikeButton(detailData.is_liked)
+        statusLikeButton(detailData.isLiked)
     }
     
     private func setCommentButton(_ count: Int) {

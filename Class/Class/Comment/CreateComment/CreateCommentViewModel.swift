@@ -58,7 +58,7 @@ final class CreateCommentViewModel {
             .withLatestFrom(input.content)
             .bind(with: self) { owner, value in
                 if input.isCreated {
-                    NetworkManager.shared.callRequest(api: .writeComment(id: input.detailData.class_id, content: value), type: Comment.self) { result in
+                    NetworkManager.shared.callRequest(api: .writeComment(id: input.detailData.classId, content: value), type: Comment.self) { result in
                         switch result {
                         case .success(_):
                             successWriteComment.onNext(true)
@@ -67,7 +67,7 @@ final class CreateCommentViewModel {
                         }
                     }
                 } else {
-                    NetworkManager.shared.callRequest(api: .editComment(id: input.detailData.class_id, commentId: input.commentData!.comment_id, content: value), type: Comment.self) { result in
+                    NetworkManager.shared.callRequest(api: .editComment(id: input.detailData.classId, commentId: input.commentData!.comment_id, content: value), type: Comment.self) { result in
                         switch result {
                         case .success(_):
                             successWriteComment.onNext(true)

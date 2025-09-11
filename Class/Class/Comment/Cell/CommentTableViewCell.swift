@@ -114,7 +114,7 @@ final class CommentTableViewCell: UITableViewCell {
         timeLabel.text = StringFormatterHelper.formatCommentDate(str: row.created_at)
         contentLabel.text = row.content
         
-        if UserDefaultsHelper.shared.userId == row.creator.user_id {
+        if UserDefaultsHelper.shared.userId == row.creator.userId {
             editButton.isHidden = false
         } else {
             editButton.isHidden = true

@@ -140,7 +140,7 @@ final class SearchClassTableViewCell: UITableViewCell {
     }
     
     func setupData(row: ClassInfo) {
-        let input = SearchClassTableViewCellModel.Input(imagePath: row.image_url, likeButtonTap: likeButton.rx.tap, id: row.class_id, liked: row.is_liked, className: row.title)
+        let input = SearchClassTableViewCellModel.Input(imagePath: row.imageUrl, likeButtonTap: likeButton.rx.tap, id: row.classId, liked: row.isLiked, className: row.title)
         let output = viewModel.transform(input: input)
         
         output.image
@@ -166,7 +166,7 @@ final class SearchClassTableViewCell: UITableViewCell {
         
         classTitleLabel.text = row.title
         categoryTag.text = CategoryHelper.categories[row.category]
-        PriceLabel.priceCalculateSale(price: row.price, salePrice: row.sale_price, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
+        PriceLabel.priceCalculateSale(price: row.price, salePrice: row.salePrice, priceLabel: priceLabel, saleLabel: salePriceLabel, persentLabel: salePersentLabel)
     }
     
     private func statusLikeButton(isLiked: Bool, className: String) {

@@ -32,7 +32,7 @@ final class CommentViewModel {
         
         input.loadData
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .comment(id: input.data.class_id), type: Comments.self) { result in
+                NetworkManager.shared.callRequest(api: .comment(id: input.data.classId), type: Comments.self) { result in
                     switch result {
                     case .success(let success):
                         data.accept(success.data)
@@ -45,7 +45,7 @@ final class CommentViewModel {
         
         input.deleteComment
             .bind(with: self) { owner, value in
-                NetworkManager.shared.callRequest(api: .deleteComment(id: input.data.class_id, commentId: value), type: EmptyResponse.self) { _ in
+                NetworkManager.shared.callRequest(api: .deleteComment(id: input.data.classId, commentId: value), type: EmptyResponse.self) { _ in
                     input.loadData.accept(())
                 }
             }

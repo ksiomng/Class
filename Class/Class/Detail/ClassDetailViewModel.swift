@@ -40,7 +40,7 @@ final class ClassDetailViewModel {
         
         input.detailsData
             .bind(with: self) { owner, value in
-                for image_url in value.image_urls {
+                for image_url in value.imageUrls {
                     NetworkManager.shared.callImage(api: .image(path: image_url)) { result in
                         switch result {
                         case .success(let success):
@@ -66,7 +66,7 @@ final class ClassDetailViewModel {
                     profileImage.accept(UIImage(systemName: "person.fill")!)
                 }
                 
-                NetworkManager.shared.callRequest(api: .comment(id: value.class_id), type: Comments.self) { result in
+                NetworkManager.shared.callRequest(api: .comment(id: value.classId), type: Comments.self) { result in
                     switch result {
                     case .success(let success):
                         commentsCount.accept(success.data.count)
@@ -79,7 +79,7 @@ final class ClassDetailViewModel {
         
         input.likeButtonTap
             .bind(with: self) { owner, _ in
-                NetworkManager.shared.callRequest(api: .like(id: input.detailsData.value.class_id, status: !isLiked.value), type: Like.self) { result in
+                NetworkManager.shared.callRequest(api: .like(id: input.detailsData.value.classId, status: !isLiked.value), type: Like.self) { result in
                     switch result {
                     case .success(let success):
                         isLiked.accept(success.like_status)

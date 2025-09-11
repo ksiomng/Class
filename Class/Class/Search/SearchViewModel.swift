@@ -71,7 +71,7 @@ final class SearchViewModel {
         
         input.moveDetailTap
             .bind(with: self) { owner , model in
-                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
+                NetworkManager.shared.callRequest(api: .detail(id: model.classId), type: ClassDetailInfo.self) { result in
                     switch result {
                     case .success(let success):
                         moveDetail.accept(success)

@@ -100,7 +100,7 @@ final class HomeViewModel {
         
         input.moveDetailTap
             .bind(with: self) { owner , model in
-                NetworkManager.shared.callRequest(api: .detail(id: model.class_id), type: ClassDetailInfo.self) { result in
+                NetworkManager.shared.callRequest(api: .detail(id: model.classId), type: ClassDetailInfo.self) { result in
                     switch result {
                     case .success(let success):
                         moveDetail.accept(success)
@@ -123,7 +123,7 @@ final class HomeViewModel {
     }
     
     private func sortByLatest(list: [ClassInfo]) -> [ClassInfo] {
-        let sorted = list.sorted { $0.created_at > $1.created_at }
+        let sorted = list.sorted { $0.createdAt > $1.createdAt }
         return sorted
     }
     
@@ -132,7 +132,7 @@ final class HomeViewModel {
             let lhsPrice = lhs.price ?? 0
             let rhsPrice = rhs.price ?? 0
             if lhsPrice == rhsPrice {
-                return lhs.created_at > rhs.created_at
+                return lhs.createdAt > rhs.createdAt
             } else {
                 return lhsPrice > rhsPrice
             }
