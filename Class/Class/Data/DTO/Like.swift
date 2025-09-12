@@ -8,5 +8,9 @@
 import Foundation
 
 struct Like: Decodable {
-    let like_status: Bool
+    let likeStatus: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case likeStatus = "like_status"
+    }
 }

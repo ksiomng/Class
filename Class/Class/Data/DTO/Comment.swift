@@ -8,10 +8,16 @@
 import Foundation
 
 struct Comment: Decodable {
-    let comment_id: String
+    let commentId: String
     let content: String
-    let created_at: String
+    let createdAt: String
     let creator: User
+    
+    enum CodingKeys: String, CodingKey {
+        case content, creator
+        case commentId = "comment_id"
+        case createdAt = "created_at"
+    }
 }
 
 struct Comments: Decodable {

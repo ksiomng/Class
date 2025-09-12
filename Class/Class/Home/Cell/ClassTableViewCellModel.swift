@@ -50,8 +50,8 @@ final class ClassTableViewCellModel {
                 NetworkManager.shared.callRequest(api: .like(id: input.id, status: !isLiked.value), type: Like.self) { result in
                     switch result {
                     case .success(let success):
-                        isLiked.accept(success.like_status)
-                        if success.like_status {
+                        isLiked.accept(success.likeStatus)
+                        if success.likeStatus {
                             toastMsg.accept("[\(input.className)] 클래스를 찜했습니다.")
                         } else {
                             toastMsg.accept("[\(input.className)] 클래스 찜을 취소했습니다.")

@@ -111,7 +111,7 @@ final class CommentTableViewCell: UITableViewCell {
             profileImageView.image = UIImage(systemName: "person.fill")
         }
         nameLabel.text = row.creator.nick
-        timeLabel.text = StringFormatterHelper.formatCommentDate(str: row.created_at)
+        timeLabel.text = StringFormatterHelper.formatCommentDate(str: row.createdAt)
         contentLabel.text = row.content
         
         if UserDefaultsHelper.shared.userId == row.creator.userId {

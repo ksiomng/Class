@@ -61,7 +61,7 @@ final class LogInViewModel {
                     switch result {
                     case .success(let login):
                         UserDefaultsHelper.shared.token = login.accessToken
-                        UserDefaultsHelper.shared.userId = login.user_id
+                        UserDefaultsHelper.shared.userId = login.userId
                         loginSubject.accept(true)
                     case .failure(let err):
                         print(err)

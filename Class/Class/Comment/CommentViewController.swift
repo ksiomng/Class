@@ -93,7 +93,7 @@ final class CommentViewController: UIViewController {
                             owner.present(nav, animated: true)
                         })
                         alert.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive) { _ in
-                            deleteComment.accept(element.comment_id)
+                            deleteComment.accept(element.commentId)
                         })
                         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
                         self.present(alert, animated: true)

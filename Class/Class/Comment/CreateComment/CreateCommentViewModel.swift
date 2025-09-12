@@ -67,7 +67,7 @@ final class CreateCommentViewModel {
                         }
                     }
                 } else {
-                    NetworkManager.shared.callRequest(api: .editComment(id: input.detailData.classId, commentId: input.commentData!.comment_id, content: value), type: Comment.self) { result in
+                    NetworkManager.shared.callRequest(api: .editComment(id: input.detailData.classId, commentId: input.commentData!.commentId, content: value), type: Comment.self) { result in
                         switch result {
                         case .success(_):
                             successWriteComment.onNext(true)

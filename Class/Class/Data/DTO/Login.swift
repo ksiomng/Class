@@ -6,9 +6,14 @@
 //
 
 struct Login: Decodable {
-    let user_id: String
+    let userId: String
     let email: String
     let nick: String
     let profileImage: String?
     let accessToken: String
+    
+    enum CodingKeys: String, CodingKey {
+        case email, nick, profileImage, accessToken
+        case userId = "user_id"
+    }
 }
