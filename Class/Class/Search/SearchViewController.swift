@@ -106,7 +106,6 @@ final class SearchViewController: UIViewController {
                        .disposed(by: disposeBag)
         
         output.moveDetail
-            .skip(1)
             .bind { value in
                 let vc = ClassDetailViewController()
                 vc.moveData(data: value)

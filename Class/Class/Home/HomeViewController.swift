@@ -151,7 +151,6 @@ final class HomeViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.moveDetail
-            .skip(1)
             .bind { value in
                 let vc = ClassDetailViewController()
                 vc.moveData(data: value)
@@ -167,9 +166,8 @@ final class HomeViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.scrollToTop
-            .asDriver()
-            .skip(1)
-            .drive(with: self) { owner, _ in
+            .asSignal()
+            .emit(with: self) { owner, _ in
                 owner.classTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
             .disposed(by: disposeBag)

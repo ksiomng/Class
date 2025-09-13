@@ -23,9 +23,9 @@ final class HomeViewModel {
         let isLatest: BehaviorRelay<Bool>
         let selectedCategory: BehaviorRelay<[String]>
         let allCategories: BehaviorRelay<[String]> = BehaviorRelay<[String]>(value: CategoryHelper.names)
-        let moveDetail: BehaviorRelay<ClassDetailInfo?>
+        let moveDetail: PublishRelay<ClassDetailInfo?>
         let showAlert: PublishRelay<String>
-        let scrollToTop: BehaviorRelay<Void>
+        let scrollToTop: PublishRelay<Void>
     }
     
     private let allList = BehaviorRelay<[ClassInfo]>(value: [])
@@ -37,9 +37,9 @@ final class HomeViewModel {
         let list = BehaviorRelay<[ClassInfo]>(value: [])
         let isLatest = BehaviorRelay<Bool>(value: true)
         let selectedCategory = BehaviorRelay<[String]>(value: ["전체"])
-        let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
+        let moveDetail = PublishRelay<ClassDetailInfo?>()
         let showAlert = PublishRelay<String>()
-        let scrollToTop = BehaviorRelay<Void>(value: ())
+        let scrollToTop = PublishRelay<Void>()
         
         input.reload
             .withLatestFrom(Observable.combineLatest(selectedCategory, isLatest))

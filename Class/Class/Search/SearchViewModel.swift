@@ -21,7 +21,7 @@ final class SearchViewModel {
     struct Output {
         let message: BehaviorRelay<String?>
         let list: Driver<[ClassInfo]>
-        let moveDetail: BehaviorRelay<ClassDetailInfo?>
+        let moveDetail: PublishRelay<ClassDetailInfo?>
         let showAlert: PublishRelay<String>
     }
     
@@ -32,7 +32,7 @@ final class SearchViewModel {
     func transform(input: Input) -> Output {
         let message = BehaviorRelay<String?>(value: "원하는 클래스가 있으신가요?")
         let list = BehaviorRelay<[ClassInfo]>(value: [])
-        let moveDetail = BehaviorRelay<ClassDetailInfo?>(value: nil)
+        let moveDetail = PublishRelay<ClassDetailInfo?>()
         let showAlert = PublishRelay<String>()
         
         input.reload
