@@ -176,19 +176,23 @@ final class ClassDetailViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        output.commentsCount
-            .bind(with: self) { owner, value in
-                owner.setCommentButton(value)
+        output.comments
+            .asDriver()
+            .drive(with: self) { owner, value in
+                owner.setCommentButton(value.count)
             }
             .disposed(by: disposeBag)
+        
+        let commets: BehaviorRelay<[Comment]> = output.comments
         
         commentButton.rx.tap
             .bind { _ in
                 let vc = CommentViewController()
-                vc.commentCount = { value in
-                    self.setCommentButton(value)
+                vc.comments = { value in
+                    self.setCommentButton(value.count)
+                    commets.accept(value)
                 }
-                vc.moveData(data: detailData)
+                vc.moveData(data: detailData, commentsData: commets.value)
                 self.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

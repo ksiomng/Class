@@ -13,7 +13,8 @@ import RxCocoa
 final class CommentViewController: UIViewController {
     
     private var data: ClassDetailInfo?
-    var commentCount: ((Int) -> Void)?
+    private var commentsData: [Comment] = []
+    var comments: (([Comment]) -> Void)?
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -28,8 +29,9 @@ final class CommentViewController: UIViewController {
         return button
     }()
     
-    func moveData(data: ClassDetailInfo?) {
+    func moveData(data: ClassDetailInfo?, commentsData: [Comment]) {
         self.data = data
+        self.commentsData = commentsData
     }
     
     private let reload = PublishRelay<Void>()
@@ -62,12 +64,12 @@ final class CommentViewController: UIViewController {
     
     private func bind(data: ClassDetailInfo) {
         let deleteComment = PublishRelay<String>()
-        let input = CommentViewModel.Input(data: self.data!, loadData: self.reload, deleteComment: deleteComment)
+        let input = CommentViewModel.Input(data: self.data!, loadData: self.reload, deleteComment: deleteComment, comments: commentsData)
         let output = viewModel.transform(input: input)
         
         output.data
             .bind(with: self) { owner, value in
-                owner.commentCount?(value.count)
+                owner.comments?(value)
             }
             .disposed(by: disposeBag)
         

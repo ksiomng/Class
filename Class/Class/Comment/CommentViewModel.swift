@@ -15,6 +15,7 @@ final class CommentViewModel {
         let data: ClassDetailInfo
         let loadData: PublishRelay<Void>
         let deleteComment: PublishRelay<String>
+        let comments: [Comment]
     }
     
     struct Output {
@@ -27,10 +28,11 @@ final class CommentViewModel {
     private let disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
-        let data = BehaviorRelay<[Comment]>(value: [])
+        let data = BehaviorRelay<[Comment]>(value: input.comments)
         let showAlert = PublishRelay<String>()
         
         input.loadData
+            .skip(1)
             .bind(with: self) { owner, _ in
                 NetworkManager.shared.callRequest(api: .comment(id: input.data.classId), type: Comments.self) { result in
                     switch result {

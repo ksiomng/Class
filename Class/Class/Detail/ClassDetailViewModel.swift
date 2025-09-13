@@ -20,7 +20,7 @@ final class ClassDetailViewModel {
     struct Output {
         let images: BehaviorRelay<[UIImage]>
         let profileImage: BehaviorRelay<UIImage>
-        let commentsCount: BehaviorRelay<Int>
+        let comments: BehaviorRelay<[Comment]>
         let isLiked: BehaviorRelay<Bool>
         let toastMsg: PublishRelay<String>
         let showAlert: PublishRelay<String>
@@ -33,7 +33,7 @@ final class ClassDetailViewModel {
     func transform(input: Input) -> Output {
         let images = BehaviorRelay<[UIImage]>(value: [])
         let profileImage = BehaviorRelay<UIImage>(value: UIImage())
-        let commentsCount = BehaviorRelay<Int>(value: 0)
+        let comments = BehaviorRelay<[Comment]>(value: [])
         let isLiked = BehaviorRelay<Bool>(value: input.liked)
         let toastMsg = PublishRelay<String>()
         let showAlert = PublishRelay<String>()
@@ -69,7 +69,7 @@ final class ClassDetailViewModel {
                 NetworkManager.shared.callRequest(api: .comment(id: value.classId), type: Comments.self) { result in
                     switch result {
                     case .success(let success):
-                        commentsCount.accept(success.data.count)
+                        comments.accept(success.data)
                     case .failure(let failure):
                         showAlert.accept(failure.message)
                     }
@@ -95,6 +95,6 @@ final class ClassDetailViewModel {
             }
             .disposed(by: disposeBag)
         
-        return Output(images: images, profileImage: profileImage, commentsCount: commentsCount, isLiked: isLiked, toastMsg: toastMsg, showAlert: showAlert)
+        return Output(images: images, profileImage: profileImage, comments: comments, isLiked: isLiked, toastMsg: toastMsg, showAlert: showAlert)
     }
 }
