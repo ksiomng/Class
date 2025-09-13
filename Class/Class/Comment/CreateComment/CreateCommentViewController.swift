@@ -195,7 +195,8 @@ final class CreateCommentViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.showAlert
-            .bind(with: self) { owner, message in
+            .asSignal()
+            .emit(with: self) { owner, message in
                 UIViewController.showAlert(message: message, viewController: owner)
             }
             .disposed(by: disposeBag)

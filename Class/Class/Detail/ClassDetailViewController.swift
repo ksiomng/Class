@@ -198,13 +198,15 @@ final class ClassDetailViewController: UIViewController {
             .disposed(by: disposeBag)
         
         output.toastMsg
-            .bind(with: self) { owner, value in
+            .asSignal()
+            .emit(with: self) { owner, value in
                 UIViewController.showToast(message: value, viewController: owner)
             }
             .disposed(by: disposeBag)
         
         output.showAlert
-            .bind(with: self) { owner, message in
+            .asSignal()
+            .emit(with: self) { owner, message in
                 UIViewController.showAlert(message: message, viewController: owner)
             }
             .disposed(by: disposeBag)
